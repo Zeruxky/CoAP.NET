@@ -14,8 +14,8 @@ namespace WorldDirect.CoAP.Server.Resources
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using Log;
     using Net;
+    using NLog;
     using Observe;
     using Threading;
 
@@ -26,7 +26,7 @@ namespace WorldDirect.CoAP.Server.Resources
     public class Resource : IResource
     {
         static readonly IEnumerable<IEndPoint> EmptyEndPoints = new IEndPoint[0];
-        static readonly ILogger log = LogManager.GetLogger(typeof(Resource));
+        static readonly Logger log = LogManager.GetCurrentClassLogger();
         readonly ResourceAttributes _attributes = new ResourceAttributes();
         private String _name;
         private String _path = String.Empty;

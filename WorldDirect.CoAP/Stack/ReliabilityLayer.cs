@@ -13,15 +13,15 @@ namespace WorldDirect.CoAP.Stack
 {
     using System;
     using System.Threading;
-    using Log;
     using Net;
+    using NLog;
 
     /// <summary>
     /// The reliability layer
     /// </summary>
     public class ReliabilityLayer : AbstractLayer
     {
-        static readonly ILogger log = LogManager.GetLogger(typeof(ReliabilityLayer));
+        static readonly Logger log = LogManager.GetCurrentClassLogger();
         static readonly Object TransmissionContextKey = "TransmissionContext";
 
         private readonly Random _rand = new Random();

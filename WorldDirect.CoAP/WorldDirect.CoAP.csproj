@@ -13,10 +13,18 @@
       <PackagePath></PackagePath>
       <Pack>True</Pack>
     </None>
+    <None Include="..\NLog.config" Link="Config\NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Common.Logging" Version="3.4.1" />
+        <PackageReference Include="NLog.Extensions.Logging" Version="1.6.5" />
+        <PackageReference Include="NLog.Targets.Seq" Version="1.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Config\" />
     </ItemGroup>
 
 </Project>

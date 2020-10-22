@@ -13,14 +13,14 @@ namespace WorldDirect.CoAP
 {
     using System;
     using System.Text;
-    using Log;
+    using NLog;
 
     /// <summary>
     /// Class for linkformat attributes.
     /// </summary>
     public class LinkAttribute : IComparable<LinkAttribute>
     {
-        private static readonly ILogger log = LogManager.GetLogger(typeof(LinkAttribute));
+        private static readonly Logger log = NLog.LogManager.GetCurrentClassLogger();
 
         private String _name;
         private Object _value;

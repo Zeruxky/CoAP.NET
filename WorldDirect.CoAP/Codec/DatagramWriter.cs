@@ -13,14 +13,14 @@ namespace WorldDirect.CoAP.Codec
 {
     using System;
     using System.IO;
-    using Log;
+    using NLog;
 
     /// <summary>
     /// This class describes the functionality to write raw network-ordered datagrams on bit-level.
     /// </summary>
     public class DatagramWriter
     {
-        private static ILogger log = LogManager.GetLogger(typeof(DatagramWriter));
+        static readonly Logger log = LogManager.GetCurrentClassLogger();
 
         private MemoryStream _stream;
         private Byte _currentByte;

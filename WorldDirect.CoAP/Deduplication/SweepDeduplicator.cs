@@ -15,12 +15,13 @@ namespace WorldDirect.CoAP.Deduplication
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Threading;
-    using Log;
+    using Microsoft.Extensions.Logging;
     using Net;
+    using NLog.Extensions.Logging;
 
     class SweepDeduplicator : IDeduplicator
     {
-        static readonly ILogger log = LogManager.GetLogger(typeof(SweepDeduplicator));
+        private static readonly NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
 
         private ConcurrentDictionary<Exchange.KeyID, Exchange> _incommingMessages
             = new ConcurrentDictionary<Exchange.KeyID, Exchange>();

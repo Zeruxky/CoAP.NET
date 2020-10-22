@@ -14,7 +14,7 @@ namespace WorldDirect.CoAP.Net
     using System;
     using Channel;
     using Codec;
-    using Log;
+    using NLog;
     using Stack;
     using Threading;
 
@@ -23,7 +23,7 @@ namespace WorldDirect.CoAP.Net
     /// </summary>
     public partial class CoAPEndPoint : IEndPoint, IOutbox
     {
-        static readonly ILogger log = LogManager.GetLogger(typeof(CoAPEndPoint));
+        static readonly Logger log = LogManager.GetCurrentClassLogger();
 
         readonly ICoapConfig _config;
         readonly IChannel _channel;

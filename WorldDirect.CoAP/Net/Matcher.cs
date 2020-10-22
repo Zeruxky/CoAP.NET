@@ -15,13 +15,13 @@ namespace WorldDirect.CoAP.Net
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using Deduplication;
-    using Log;
+    using NLog;
     using Observe;
     using Util;
 
     class Matcher : IMatcher, IDisposable
     {
-        static readonly ILogger log = LogManager.GetLogger(typeof(Matcher));
+        static readonly Logger log = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// for all

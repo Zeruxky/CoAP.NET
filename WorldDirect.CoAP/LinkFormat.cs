@@ -16,7 +16,7 @@ namespace WorldDirect.CoAP
     using System.Text;
     using System.Text.RegularExpressions;
     using EndPoint.Resources;
-    using Log;
+    using NLog;
     using Server.Resources;
     using Util;
     using Resource = EndPoint.Resources.Resource;
@@ -75,7 +75,7 @@ namespace WorldDirect.CoAP
         static readonly Regex EqualRegex = new Regex("=");
         static readonly Regex BlankRegex = new Regex("\\s");
 
-        private static ILogger log = LogManager.GetLogger(typeof(LinkFormat));
+        private static Logger log = LogManager.GetCurrentClassLogger();
 
         public static String Serialize(IResource root)
         {

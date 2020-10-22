@@ -13,8 +13,8 @@ namespace WorldDirect.CoAP.Server
 {
     using System;
     using System.Collections.Generic;
-    using Log;
     using Net;
+    using NLog;
     using Observe;
     using Resources;
     using Threading;
@@ -26,7 +26,7 @@ namespace WorldDirect.CoAP.Server
     /// </summary>
     public class ServerMessageDeliverer : IMessageDeliverer
     {
-        static readonly ILogger log = LogManager.GetLogger(typeof(ServerMessageDeliverer));
+        static readonly Logger log = LogManager.GetCurrentClassLogger();
         readonly ICoapConfig _config;
         readonly IResource _root;
         readonly ObserveManager _observeManager = new ObserveManager();

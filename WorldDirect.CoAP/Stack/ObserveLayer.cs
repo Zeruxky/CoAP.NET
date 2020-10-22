@@ -13,13 +13,13 @@ namespace WorldDirect.CoAP.Stack
 {
     using System;
     using System.Threading;
-    using Log;
     using Net;
+    using NLog;
     using Observe;
 
     public class ObserveLayer : AbstractLayer
     {
-        static readonly ILogger log = LogManager.GetLogger(typeof(ObserveLayer));
+        static readonly Logger log = LogManager.GetCurrentClassLogger();
         static readonly Object ReregistrationContextKey = "ReregistrationContext";
 
         /// <summary>

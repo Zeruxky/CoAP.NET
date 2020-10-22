@@ -15,7 +15,7 @@ namespace WorldDirect.CoAP.Channel
     using System.Collections.Concurrent;
     using System.Net;
     using System.Net.Sockets;
-    using Log;
+    using NLog;
 
     /// <summary>
     /// Channel via UDP protocol.
@@ -23,7 +23,7 @@ namespace WorldDirect.CoAP.Channel
     public partial class UDPChannel : IChannel
     {
 
-        static readonly ILogger log = LogManager.GetLogger(typeof(UDPChannel));
+        static readonly Logger log = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Default size of buffer for receiving packet.

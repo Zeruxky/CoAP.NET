@@ -4,8 +4,9 @@
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using Log;
     using Net;
+    using NLog;
+    using NLog.Config;
 
     /// <summary>
     /// Provides convenient methods for accessing CoAP resources.
@@ -15,7 +16,7 @@
         #region Locals
 
         private static readonly IEnumerable<WebLink> EmptyLinks = new WebLink[0];
-        private static ILogger log = LogManager.GetLogger(typeof(CoapClient));
+        static readonly Logger log = LogManager.GetCurrentClassLogger();
 
         private ICoapConfig _config;
         private IEndPoint _endpoint;
@@ -71,6 +72,7 @@
         {
             _uri = uri;
             _config = config ?? CoapConfig.Default;
+            LogManager.Configuration = new XmlLoggingConfiguration("../Config/NLog.config");
         }
 
         /// <summary>

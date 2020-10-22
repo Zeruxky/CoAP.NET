@@ -14,8 +14,9 @@ namespace WorldDirect.CoAP.Server
     using System;
     using System.Collections.Generic;
     using System.Net;
-    using Log;
     using Net;
+    using NLog;
+    using NLog.Config;
     using Resources;
 
     /// <summary>
@@ -23,7 +24,7 @@ namespace WorldDirect.CoAP.Server
     /// </summary>
     public class CoapServer : IServer
     {
-        static readonly ILogger log = LogManager.GetLogger(typeof(CoapServer));
+        static readonly Logger log = LogManager.GetCurrentClassLogger();
         readonly IResource _root;
         readonly List<IEndPoint> _endpoints = new List<IEndPoint>();
         readonly ICoapConfig _config;
@@ -52,6 +53,7 @@ namespace WorldDirect.CoAP.Server
         /// <param name="ports">the ports to bind to</param>
         public CoapServer(ICoapConfig config, params Int32[] ports)
         {
+            LogManager.Configuration = new XmlLoggingConfiguration("Config/NLog.config");
             _config = config ?? CoapConfig.Default;
             _root = new RootResource(this);
             _deliverer = new ServerMessageDeliverer(_config, _root);

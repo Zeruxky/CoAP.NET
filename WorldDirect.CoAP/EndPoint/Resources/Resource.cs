@@ -14,14 +14,14 @@ namespace WorldDirect.CoAP.EndPoint.Resources
     using System;
     using System.Collections.Generic;
     using System.Text;
-    using Log;
+    using NLog;
 
     /// <summary>
     /// This class describes the functionality of a CoAP resource.
     /// </summary>
     public abstract class Resource : IComparable<Resource>
     {
-        private static ILogger log = LogManager.GetLogger(typeof(Resource));
+        private static Logger log = NLog.LogManager.GetCurrentClassLogger();
 
         private Int32 _totalSubResourceCount;
         private String _resourceIdentifier;

@@ -14,8 +14,8 @@ namespace WorldDirect.CoAP.Observe
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using Log;
     using Net;
+    using NLog;
     using Server.Resources;
     using Util;
 
@@ -24,7 +24,7 @@ namespace WorldDirect.CoAP.Observe
     /// </summary>
     public class ObserveRelation
     {
-        static readonly ILogger log = LogManager.GetLogger(typeof(ObserveRelation));
+        static readonly Logger log = LogManager.GetCurrentClassLogger();
         readonly ICoapConfig _config;
         readonly ObservingEndpoint _endpoint;
         readonly IResource _resource;

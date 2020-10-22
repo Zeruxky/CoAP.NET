@@ -14,12 +14,12 @@ namespace WorldDirect.CoAP.Stack
     using System;
     using System.Linq;
     using System.Threading;
-    using Log;
     using Net;
+    using NLog;
 
     public class BlockwiseLayer : AbstractLayer
     {
-        static readonly ILogger log = LogManager.GetLogger(typeof(BlockwiseLayer));
+        static readonly Logger log = LogManager.GetCurrentClassLogger();
 
         private Int32 _maxMessageSize;
         private Int32 _defaultBlockSize;

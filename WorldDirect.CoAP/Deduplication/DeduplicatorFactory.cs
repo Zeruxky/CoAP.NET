@@ -12,11 +12,11 @@
 namespace WorldDirect.CoAP.Deduplication
 {
     using System;
-    using Log;
+    using NLog;
 
     static class DeduplicatorFactory
     {
-        static readonly ILogger log = LogManager.GetLogger(typeof(DeduplicatorFactory));
+        static readonly Logger log = LogManager.GetCurrentClassLogger();
         public const String MarkAndSweepDeduplicator = "MarkAndSweep";
         public const String CropRotationDeduplicator = "CropRotation";
         public const String NoopDeduplicator = "Noop";
