@@ -4,6 +4,7 @@ namespace WorldDirect.CoAP.Example.Client
 {
     using System.Collections.Generic;
     using System.IO;
+    using System.Net.Http.Headers;
     using System.Text;
     using System.Threading.Tasks;
     using CommandLine;
@@ -20,7 +21,9 @@ namespace WorldDirect.CoAP.Example.Client
                 with.HelpWriter = Console.Out;
             });
 
-            await parser.ParseArguments<PostArguments>(args).WithParsedAsync(async a =>
+            var arguments = parser.ParseArguments<PostArguments, DiscoverArguments, ObserverArguments>(args);
+
+            await arguments.WithParsedAsync<PostArguments>(async a =>
             {
                 var request = Request.NewPost();
                 request.URI = new Uri(a.Endpoint);
@@ -76,16 +79,122 @@ namespace WorldDirect.CoAP.Example.Client
                     }
                 } while (false);
             }).ConfigureAwait(false);
+
+            arguments.WithParsed<DiscoverArguments>(a =>
+            {
+                var baseUrl = new Uri(a.Endpoint);
+                var request = Request.NewGet();
+                request.URI = new Uri(baseUrl, ".well-known/core");
+
+                request.Send();
+
+                do
+                {
+                    Console.WriteLine("Receiving response...");
+
+                    Response response = null;
+                    response = request.WaitForResponse();
+
+                    if (response == null)
+                    {
+                        Console.WriteLine("Request timeout");
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine(Utils.ToString(response));
+                        Console.WriteLine("Time elapsed (ms): " + response.RTT);
+
+                        if (response.ContentType == MediaType.ApplicationLinkFormat)
+                        {
+                            IEnumerable<WebLink> links = LinkFormat.Parse(response.PayloadString);
+                            if (links == null)
+                            {
+                                Console.WriteLine("Failed parsing link format");
+                                Environment.Exit(1);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Discovered resources:");
+                                foreach (var link in links)
+                                {
+                                    Console.WriteLine(link);
+                                }
+                            }
+                        }
+                    }
+                } while (false);
+            });
+
+            arguments.WithParsed<ObserverArguments>(a =>
+            {
+                var request = Request.NewGet();
+                request.URI = new Uri(a.Endpoint);
+                request.MarkObserve();
+
+                request.Send();
+
+                do
+                {
+                    Console.WriteLine("Receiving response...");
+
+                    Response response = null;
+                    response = request.WaitForResponse();
+
+                    if (response == null)
+                    {
+                        Console.WriteLine("Request timeout");
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine(Utils.ToString(response));
+                        Console.WriteLine("Time elapsed (ms): " + response.RTT);
+
+                        if (response.ContentType == MediaType.ApplicationLinkFormat)
+                        {
+                            IEnumerable<WebLink> links = LinkFormat.Parse(response.PayloadString);
+                            if (links == null)
+                            {
+                                Console.WriteLine("Failed parsing link format");
+                                Environment.Exit(1);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Discovered resources:");
+                                foreach (var link in links)
+                                {
+                                    Console.WriteLine(link);
+                                }
+                            }
+                        }
+                    }
+                } while (true);
+            });
         }
     }
 
-    [Verb("post", HelpText = "Sending a POST request to the given CoAP server.")]
+    [Verb("observe", HelpText = "Sends a OBSERVER request to the given CoAP endpoint.")]
+    public class ObserverArguments
+    {
+        [Option('e', "endpoint", HelpText = "Sets the endpoint for this OBSERVE request.")]
+        public string Endpoint { get; set; }
+    }
+
+    [Verb("discover", HelpText = "Sends a DISCOVER request to the given CoAP endpoint.")]
+    public class DiscoverArguments
+    {
+        [Option('e', "endpoint", HelpText = "Sets the endpoint for this DISCOVER request.")]
+        public string Endpoint { get; set; }
+    }
+
+    [Verb("post", HelpText = "Sends a POST request to the given CoAP endpoint with the given payload.")]
     public class PostArguments
     {
-        [Option('e', "endpoint", HelpText = "Sets the endpoint for this POST method.")]
+        [Option('e', "endpoint", HelpText = "Sets the endpoint for this POST request.")]
         public string Endpoint { get; set; }
 
-        [Option('p', "payload", HelpText = "Sets the payload for this POST method.")]
+        [Option('p', "payload", HelpText = "Sets the payload for this POST request.")]
         public string Payload { get; set; }
     }
 
