@@ -3,7 +3,9 @@
 namespace WorldDirect.CoAP.Example.Client
 {
     using System.Collections.Generic;
+    using System.ComponentModel.Design;
     using System.IO;
+    using System.Linq;
     using System.Net.Http.Headers;
     using System.Text;
     using System.Threading.Tasks;
@@ -21,24 +23,30 @@ namespace WorldDirect.CoAP.Example.Client
                 with.HelpWriter = Console.Out;
             });
 
-            var arguments = parser.ParseArguments<PostArguments, DiscoverArguments, ObserverArguments>(args);
+            var arguments = parser.ParseArguments<GetArguments, PostArguments, DiscoverArguments, ObserverArguments>(args);
 
             await arguments.WithParsedAsync<PostArguments>(async a =>
             {
                 var request = Request.NewPost();
-                request.URI = new Uri(a.Endpoint);
-                var file = await File.ReadAllBytesAsync(a.Payload).ConfigureAwait(false);
-                var fileInfo = new FileInfo(a.Payload);
-                var extension = fileInfo.Extension;
-                if (extension.Equals("jpg"))
+                byte[] payload;
+                int mediaType;
+                if (Path.HasExtension(a.Payload))
                 {
-                    request.SetPayload(file, MediaType.ImageJpeg);
+                    payload = await File.ReadAllBytesAsync(a.Payload).ConfigureAwait(false);
+                    var fileInfo = new FileInfo(a.Payload);
+                    var extension = fileInfo.Name.Split('.')[1];
+                    var filename = fileInfo.Name;
+                    payload = payload.Concat(Encoding.UTF8.GetBytes($"--{filename}--")).ToArray();
+                    mediaType = MediaType.Parse(extension);
+                }
+                else
+                {
+                    payload = Encoding.UTF8.GetBytes(a.Payload);
+                    mediaType = MediaType.TextPlain;
                 }
 
-                if (extension.Equals("png"))
-                {
-                    request.SetPayload(file, MediaType.ImagePng);
-                }
+                request.URI = new Uri(a.Endpoint);
+                request.SetPayload(payload, mediaType);
 
                 request.Send();
 
@@ -170,6 +178,53 @@ namespace WorldDirect.CoAP.Example.Client
                         }
                     }
                 } while (true);
+
+                request.MarkObserveCancel();
+                request.Send();
+            });
+
+            arguments.WithParsed<GetArguments>(a =>
+            {
+                var request = Request.NewGet();
+                request.URI = new Uri(a.Endpoint);
+
+                request.Send();
+                do
+                {
+                    Console.WriteLine("Receiving response...");
+
+                    Response response = null;
+                    response = request.WaitForResponse();
+
+                    if (response == null)
+                    {
+                        Console.WriteLine("Request timeout");
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine(Utils.ToString(response));
+                        Console.WriteLine("Time elapsed (ms): " + response.RTT);
+
+                        if (response.ContentType == MediaType.ApplicationLinkFormat)
+                        {
+                            IEnumerable<WebLink> links = LinkFormat.Parse(response.PayloadString);
+                            if (links == null)
+                            {
+                                Console.WriteLine("Failed parsing link format");
+                                Environment.Exit(1);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Discovered resources:");
+                                foreach (var link in links)
+                                {
+                                    Console.WriteLine(link);
+                                }
+                            }
+                        }
+                    }
+                } while (a.Looping);
             });
         }
     }
@@ -196,6 +251,16 @@ namespace WorldDirect.CoAP.Example.Client
 
         [Option('p', "payload", HelpText = "Sets the payload for this POST request.")]
         public string Payload { get; set; }
+    }
+
+    [Verb("get", HelpText = "Sends a GET request to the given endpoint and if set the request will be repeated multiple times.")]
+    public class GetArguments
+    {
+        [Option('e', "endpoint", HelpText = "Sets the endpoint for this GET request.")]
+        public string Endpoint { get; set; }
+
+        [Option('m', "multiple", HelpText = "Sets the variable that indicates if the request should be sent multiple times.")]
+        public bool Looping { get; set; }
     }
 
     //// .NET 2, .NET 4 entry point

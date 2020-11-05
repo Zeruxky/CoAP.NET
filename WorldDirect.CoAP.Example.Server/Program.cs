@@ -8,13 +8,12 @@ namespace WorldDirect.CoAP.Example.Server
 
     public static class Program
     {
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
-            var dateTimeResource = await DateTimeResource.Create().ConfigureAwait(false);
             var server = new CoapServer();
             server.Add(new HelloWorldResource("HelloWorld", true));
-            server.Add(new ImageResource("ImageResource", true));
-            server.Add(dateTimeResource);
+            server.Add(new FtpResource("Ftp", true));
+            server.Add(new DateTimeResource("DateTime", true));
             server.Start();
             Console.ReadLine();
         }

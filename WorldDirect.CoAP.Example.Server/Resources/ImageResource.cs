@@ -1,86 +1,67 @@
 ﻿namespace WorldDirect.CoAP.Example.Server.Resources
 {
-    using System;
     using System.IO;
-    using System.Reflection.PortableExecutable;
     using System.Text;
+    using System.Text.RegularExpressions;
     using CoAP.Server.Resources;
 
-    public class ImageResource : Resource
+    public class FtpResource : Resource
     {
-        private Int32[] _supported = new Int32[] {
-            MediaType.ImageJpeg,
-            MediaType.ImagePng
-        };
+        private const string FilenamePattern = @"(?<content>.*?)--(?<filename>.*?)--";
+        private string filename;
 
-        public ImageResource(String name)
-            : this(name, false)
-        {
-        }
-
-        public ImageResource(string name, bool visible)
+        public FtpResource(string name, bool visible)
             : base(name, visible)
         {
-            Attributes.Title = "GET an image with different content-types";
-            Attributes.AddResourceType("Image");
-
-            foreach (Int32 item in _supported)
-            {
-                Attributes.AddContentType(item);
-            }
-
-            Attributes.MaximumSizeEstimate = 18029;
+            Attributes.Title = "Resource for offering FTP service.";
         }
 
         protected override void DoGet(CoapExchange exchange)
         {
-            String file = "data\\image\\";
-            Int32 ct = MediaType.ImagePng;
-            Request request = exchange.Request;
-
-            if ((ct = MediaType.NegotiationContent(ct, _supported, request.GetOptions(OptionType.Accept)))
-                == MediaType.Undefined)
+            var content = File.ReadAllBytes($"upload/{this.filename}");
+            var extension = MediaType.Parse(this.filename.Substring(this.filename.IndexOf('.') + 1));
+            var response = new Response(StatusCode.Content)
             {
-                exchange.Respond(StatusCode.NotAcceptable);
-            }
-            else
-            {
-                file += "image." + MediaType.ToFileExtension(ct);
-                if (File.Exists(file))
-                {
-                    Byte[] data = null;
+                Accept = (int)OptionType.Accept,
+            };
 
-                    try
-                    {
-                        data = File.ReadAllBytes(file);
-                    }
-                    catch (Exception ex)
-                    {
-                        exchange.Respond(StatusCode.InternalServerError, "IO error");
-                        Console.WriteLine(ex.Message);
-                    }
-
-                    Response response = new Response(StatusCode.Content);
-                    response.Payload = data;
-                    response.ContentType = ct;
-                    exchange.Respond(response);
-                }
-                else
-                {
-                    exchange.Respond(StatusCode.InternalServerError, "Image file not found");
-                }
-            }
+            response.SetPayload(content, extension);
+            exchange.Respond(response);
         }
 
         protected override void DoPost(CoapExchange exchange)
         {
             var request = exchange.Request;
-            Directory.CreateDirectory("upload");
-            File.WriteAllBytes("upload/upload.jpg", request.Payload);
-            var response = new Response(StatusCode.Created)
+            var matchResult = Regex.Match(request.PayloadString, FilenamePattern);
+            var tmpFilename = matchResult.Groups["filename"].Value;
+            var filenameWithoutExtension = tmpFilename.Split('.')[0];
+            var content = matchResult.Groups["content"].Value;
+            File.WriteAllBytes($"upload/{tmpFilename}", Encoding.UTF8.GetBytes(content));
+            var childResource = (Resource)this.GetChild(filenameWithoutExtension);
+            Response response;
+            if (childResource == null)
             {
-                LocationPath = "upload"
-            };
+                var resource = new FtpResource(filenameWithoutExtension, true)
+                {
+                    filename = tmpFilename,
+                };
+                this.Add(resource);
+                response = new Response(StatusCode.Created)
+                {
+                    LocationPath = resource.Path,
+                    UriPath = resource.Uri,
+                };
+            }
+            else
+            {
+                childResource.Changed();
+                response = new Response(StatusCode.Changed)
+                {
+                    LocationPath = childResource.Path,
+                    UriPath = childResource.Uri,
+                };
+            }
+
             exchange.Respond(response);
         }
     }

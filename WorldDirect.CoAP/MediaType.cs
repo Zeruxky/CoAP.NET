@@ -13,6 +13,7 @@ namespace WorldDirect.CoAP
 {
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
     using System.Text.RegularExpressions;
 
     /// <summary>
@@ -247,6 +248,11 @@ namespace WorldDirect.CoAP
             {
                 if (pair.Value[0].Equals(type, StringComparison.OrdinalIgnoreCase))
                     return pair.Key;
+
+                if (pair.Value[1].Equals(type, StringComparison.OrdinalIgnoreCase))
+                {
+                    return pair.Key;
+                }
             }
 
             return Undefined;
