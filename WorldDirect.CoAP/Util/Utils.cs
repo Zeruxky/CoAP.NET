@@ -199,7 +199,7 @@ namespace WorldDirect.CoAP.Util
             appendIfNotNullOrEmpty(sb, "Location-Path", ToString(msg.LocationPaths));
             appendIfNotNullOrEmpty(sb, "URI-Path", ToString(msg.UriPaths));
             if (msg.ContentType != MediaType.Undefined)
-                appendIfNotNullOrEmpty(sb, "Content-Type", MediaType.ToString(msg.ContentType));
+                appendIfNotNullOrEmpty(sb, "Value-Type", MediaType.ToString(msg.ContentType));
             if (msg.HasOption(OptionType.MaxAge))
                 appendIfNotNullOrEmpty(sb, "Max-Age", msg.MaxAge.ToString());
             appendIfNotNullOrEmpty(sb, "URI-Query", ToString(msg.UriQueries));

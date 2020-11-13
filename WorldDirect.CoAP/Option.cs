@@ -342,7 +342,7 @@ namespace WorldDirect.CoAP
                 case OptionType.Reserved:
                     return "Reserved";
                 case OptionType.ContentFormat:
-                    return "Content-Format";
+                    return "Value-Format";
                 case OptionType.MaxAge:
                     return "Max-Age";
                 case OptionType.ProxyUri:

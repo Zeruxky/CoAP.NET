@@ -15,7 +15,14 @@ namespace WorldDirect.CoAP.Example.Server
             server.Add(new FtpResource("Ftp", true));
             server.Add(new DateTimeResource("DateTime", true));
             server.Start();
+            DoSomething();
+            GC.Collect();
             Console.ReadLine();
+        }
+
+        private static void DoSomething()
+        {
+            var x = new FtpResource("Ftp", true);
         }
     }
 }

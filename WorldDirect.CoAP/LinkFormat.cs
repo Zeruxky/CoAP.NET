@@ -36,7 +36,7 @@ namespace WorldDirect.CoAP
         /// </summary>
         public static readonly String InterfaceDescription = "if";
         /// <summary>
-        /// Name of the attribute Content Type
+        /// Name of the attribute Value Type
         /// </summary>
         public static readonly String ContentType = "ct";
         /// <summary>

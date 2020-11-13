@@ -75,7 +75,7 @@ namespace WorldDirect.CoAP.Stack
         }
 
         /// <summary>
-        /// Gets the initial Content-Format, which must stay the same for the whole transfer.
+        /// Gets the initial Value-Format, which must stay the same for the whole transfer.
         /// </summary>
         public Int32 ContentFormat
         {

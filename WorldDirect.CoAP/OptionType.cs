@@ -150,15 +150,4 @@ namespace WorldDirect.CoAP
         [System.Obsolete]
         FencepostDivisor = 114,
     }
-
-    /// <summary>
-    /// CoAP option formats
-    /// </summary>
-    public enum OptionFormat
-    {
-        Integer,
-        String,
-        Opaque,
-        Unknown
-    }
 }

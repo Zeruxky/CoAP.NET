@@ -552,7 +552,7 @@ namespace WorldDirect.CoAP
             if (opaque == null)
                 throw ThrowHelper.ArgumentNull("opaque");
             if (opaque.Length > 8)
-                throw ThrowHelper.Argument("opaque", "Content of If-Match option is too large: " + ByteArrayUtils.ToHexString(opaque));
+                throw ThrowHelper.Argument("opaque", "Value of If-Match option is too large: " + ByteArrayUtils.ToHexString(opaque));
             return AddOption(Option.Create(OptionType.IfMatch, opaque));
         }
 

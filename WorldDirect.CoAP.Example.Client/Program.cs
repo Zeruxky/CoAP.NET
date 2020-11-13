@@ -23,7 +23,51 @@ namespace WorldDirect.CoAP.Example.Client
                 with.HelpWriter = Console.Out;
             });
 
-            var arguments = parser.ParseArguments<GetArguments, PostArguments, DiscoverArguments, ObserverArguments>(args);
+            var arguments = parser.ParseArguments<GetArguments, PostArguments, DiscoverArguments, ObserverArguments, DeleteArguments>(args);
+
+            arguments.WithParsed<DeleteArguments>(a =>
+            {
+                var request = Request.NewDelete();
+                request.URI = new Uri(a.Endpoint);
+                request.Send();
+
+                do
+                {
+                    Console.WriteLine("Receiving response...");
+
+                    Response response = null;
+                    response = request.WaitForResponse();
+
+                    if (response == null)
+                    {
+                        Console.WriteLine("Request timeout");
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine(Utils.ToString(response));
+                        Console.WriteLine("Time elapsed (ms): " + response.RTT);
+
+                        if (response.ContentType == MediaType.ApplicationLinkFormat)
+                        {
+                            IEnumerable<WebLink> links = LinkFormat.Parse(response.PayloadString);
+                            if (links == null)
+                            {
+                                Console.WriteLine("Failed parsing link format");
+                                Environment.Exit(1);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Discovered resources:");
+                                foreach (var link in links)
+                                {
+                                    Console.WriteLine(link);
+                                }
+                            }
+                        }
+                    }
+                } while (false);
+            });
 
             await arguments.WithParsedAsync<PostArguments>(async a =>
             {
@@ -158,29 +202,11 @@ namespace WorldDirect.CoAP.Example.Client
                     {
                         Console.WriteLine(Utils.ToString(response));
                         Console.WriteLine("Time elapsed (ms): " + response.RTT);
-
-                        if (response.ContentType == MediaType.ApplicationLinkFormat)
-                        {
-                            IEnumerable<WebLink> links = LinkFormat.Parse(response.PayloadString);
-                            if (links == null)
-                            {
-                                Console.WriteLine("Failed parsing link format");
-                                Environment.Exit(1);
-                            }
-                            else
-                            {
-                                Console.WriteLine("Discovered resources:");
-                                foreach (var link in links)
-                                {
-                                    Console.WriteLine(link);
-                                }
-                            }
-                        }
+                        break;
                     }
                 } while (true);
 
-                request.MarkObserveCancel();
-                request.Send();
+                request.Cancel();
             });
 
             arguments.WithParsed<GetArguments>(a =>
@@ -226,41 +252,10 @@ namespace WorldDirect.CoAP.Example.Client
                     }
                 } while (a.Looping);
             });
+
+            Console.WriteLine("Fin");
+            Console.ReadLine();
         }
-    }
-
-    [Verb("observe", HelpText = "Sends a OBSERVER request to the given CoAP endpoint.")]
-    public class ObserverArguments
-    {
-        [Option('e', "endpoint", HelpText = "Sets the endpoint for this OBSERVE request.")]
-        public string Endpoint { get; set; }
-    }
-
-    [Verb("discover", HelpText = "Sends a DISCOVER request to the given CoAP endpoint.")]
-    public class DiscoverArguments
-    {
-        [Option('e', "endpoint", HelpText = "Sets the endpoint for this DISCOVER request.")]
-        public string Endpoint { get; set; }
-    }
-
-    [Verb("post", HelpText = "Sends a POST request to the given CoAP endpoint with the given payload.")]
-    public class PostArguments
-    {
-        [Option('e', "endpoint", HelpText = "Sets the endpoint for this POST request.")]
-        public string Endpoint { get; set; }
-
-        [Option('p', "payload", HelpText = "Sets the payload for this POST request.")]
-        public string Payload { get; set; }
-    }
-
-    [Verb("get", HelpText = "Sends a GET request to the given endpoint and if set the request will be repeated multiple times.")]
-    public class GetArguments
-    {
-        [Option('e', "endpoint", HelpText = "Sets the endpoint for this GET request.")]
-        public string Endpoint { get; set; }
-
-        [Option('m', "multiple", HelpText = "Sets the variable that indicates if the request should be sent multiple times.")]
-        public bool Looping { get; set; }
     }
 
     //// .NET 2, .NET 4 entry point

@@ -1,5 +1,6 @@
 ﻿namespace WorldDirect.CoAP.Example.Server.Resources
 {
+    using System;
     using System.IO;
     using System.Text;
     using System.Text.RegularExpressions;
@@ -14,6 +15,18 @@
             : base(name, visible)
         {
             Attributes.Title = "Resource for offering FTP service.";
+        }
+
+        ~FtpResource()
+        {
+            Console.WriteLine("Deconstructed");
+        }
+
+        protected override void DoDelete(CoapExchange exchange)
+        {
+            this.Parent.Remove(this);
+            GC.Collect();
+            exchange.Respond(StatusCode.Deleted);
         }
 
         protected override void DoGet(CoapExchange exchange)

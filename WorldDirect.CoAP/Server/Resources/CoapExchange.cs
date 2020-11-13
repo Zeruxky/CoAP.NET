@@ -108,7 +108,7 @@ namespace WorldDirect.CoAP.Server.Resources
         }
 
         /// <summary>
-        /// Responds with code 2.05 (Content) and the specified payload.
+        /// Responds with code 2.05 (Value) and the specified payload.
         /// </summary>
         public void Respond(String payload)
         {
