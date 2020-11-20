@@ -6,6 +6,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
+    using System.Net.Http;
     using System.Net.Sockets;
     using System.Reflection;
     using System.Runtime.CompilerServices;
@@ -14,9 +15,28 @@
     using System.Threading.Tasks;
     using System.Threading.Tasks.Dataflow;
 
+    public static class UriExtensions
+    {
+        public static bool IsValidCoapUri(this Uri uri)
+        {
+            if (uri.Scheme.ToLowerInvariant().StartsWith("coap", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (uri.Scheme.ToLowerInvariant().StartsWith("coaps", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return false;
+        }
+    }
+
     public class CoapClient
     {
         private readonly UdpClient listener;
+        private Uri uri;
 
         public CoapClient(string hostname, int port)
         {
@@ -28,10 +48,44 @@
             this.listener = new UdpClient(endpoint);
         }
 
+        public Uri BaseAddress
+        {
+            get
+            {
+                return this.uri;
+            }
+
+            set
+            {
+                if (!this.uri.IsValidCoapUri())
+                {
+                    throw new ArgumentException();
+                }
+
+                this.uri = value;
+            }
+        }
+
+        public int Port
+        {
+            get
+            {
+                return this.BaseAddress.Port == -1
+                    ? 5683
+                    : this.BaseAddress.Port;
+            }
+        }
+
+        private static bool IsValidCoapUri(Uri uri)
+        {
+            return uri.Scheme.Equals("coap", StringComparison.OrdinalIgnoreCase)
+        }
+
         public async Task<CoapMessage> SendAsync(CoapRequestMessage message, CancellationToken ct)
         {
             var content = message.GetBytes().ToArray();
-            var sendBytes = await this.listener.SendAsync(content, content.Length).ConfigureAwait(false);
+
+            var sendBytes = await this.listener.SendAsync(content, content.Length, this.BaseAddress.ToString(), this.Port).ConfigureAwait(false);
             if (sendBytes < 1)
             {
                 throw new ArgumentException($"No bytes sent to {this.listener.Client.RemoteEndPoint}.", nameof(sendBytes));
@@ -43,6 +97,7 @@
 
             return response;
         }
+
     }
 
     public class CoapHeader
@@ -58,7 +113,7 @@
             this.Type = (Net.Type)bytes[0];
             this.TokenLength = (Net.TokenLength)bytes[0];
             this.Code = Net.Code.Parse(bytes[1]);
-            this.MessageId = (Net.MessageId)new[] {bytes[2], bytes[3]};
+            this.MessageId = (Net.MessageId)new[] { bytes[2], bytes[3] };
         }
 
         public Version Version { get; }
@@ -236,7 +291,7 @@
         public static explicit operator UInt2(byte value) => new UInt2(value);
 
         public static implicit operator byte(UInt2 self) => self.value;
-        
+
         public override string ToString()
         {
             return $"{this.value}";
@@ -443,7 +498,7 @@
                 return false;
             }
 
-            return Equals((CodeClass) obj);
+            return Equals((CodeClass)obj);
         }
 
         public override int GetHashCode()
@@ -498,7 +553,7 @@
                 return false;
             }
 
-            return Equals((CodeDetail) obj);
+            return Equals((CodeDetail)obj);
         }
 
         public override int GetHashCode()
