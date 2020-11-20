@@ -457,7 +457,7 @@ namespace WorldDirect.CoAP.Server.Resources
             if (relation == null)
                 return; // because request did not try to establish a relation
 
-            if (Code.IsSuccess(response.Code))
+            if (WorldDirect.CoAP.Code.IsSuccess(response.Code))
             {
                 response.SetOption(Option.Create(OptionType.Observe, _notificationOrderer.Current));
 

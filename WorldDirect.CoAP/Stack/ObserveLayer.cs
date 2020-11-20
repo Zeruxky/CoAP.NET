@@ -44,7 +44,7 @@ namespace WorldDirect.CoAP.Stack
                 if (exchange.Request.IsAcknowledged || exchange.Request.Type == MessageType.NON)
                 {
                     // Transmit errors as CON
-                    if (!Code.IsSuccess(response.Code))
+                    if (!WorldDirect.CoAP.Code.IsSuccess(response.Code))
                     {
                         if (log.IsDebugEnabled)
                             log.Debug("Response has error code " + response.Code + " and must be sent as CON");
