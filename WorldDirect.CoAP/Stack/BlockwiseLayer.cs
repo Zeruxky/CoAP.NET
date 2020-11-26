@@ -16,6 +16,7 @@ namespace WorldDirect.CoAP.Stack
     using System.Threading;
     using Net;
     using NLog;
+    using Option = CoAP.Option;
 
     public class BlockwiseLayer : AbstractLayer
     {

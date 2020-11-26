@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="..\stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\.nuget\icon.png" Link="icon.png">
       <PackagePath></PackagePath>
       <Pack>True</Pack>
@@ -19,13 +23,24 @@
   </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
         <PackageReference Include="NLog.Extensions.Logging" Version="1.6.5" />
         <PackageReference Include="NLog.Targets.Seq" Version="1.2.0" />
+        <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="System.Threading.Tasks.Dataflow" Version="5.0.0" />
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Config\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="WebLink.cs">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Compile>
     </ItemGroup>
 
 </Project>

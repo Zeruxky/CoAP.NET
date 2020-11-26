@@ -13,6 +13,7 @@ namespace WorldDirect.CoAP.Server.Resources
 {
     using System;
     using Net;
+    using Option = CoAP.Option;
 
     /// <summary>
     /// Represents an exchange of a CoAP request and response and

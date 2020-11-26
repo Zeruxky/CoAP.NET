@@ -12,6 +12,7 @@ namespace WorldDirect.CoAP.Example.Client
     using System.Threading;
     using System.Threading.Tasks;
     using CommandLine;
+    using Net;
     using Util;
 
     public static class Program
@@ -25,8 +26,16 @@ namespace WorldDirect.CoAP.Example.Client
                 with.HelpWriter = Console.Out;
             });
 
+            var header = new CoapHeader(Type.NonConfirmable, (TokenLength)2, RequestCode.Get, (MessageId)5);
+            var tokens = new List<Token>() {(Token)0x01, (Token)0x02,};
+            var options = new List<Option>
+            {
+                (Option)new byte[] {0x01},
+            };
+            var payload = Encoding.UTF8.GetBytes("Payload");
+            var request = CoapRequestMessage.Create(header, tokens, options, payload);
             var client = new WorldDirect.CoAP.Net.CoapClient(new IPEndPoint(IPAddress.Any, 5000));
-            await client.SendAsync(CancellationToken.None).ConfigureAwait(false);
+            await client.SendAsync(request, CancellationToken.None).ConfigureAwait(false);
 
             var arguments = parser.ParseArguments<GetArguments, PostArguments, DiscoverArguments, ObserverArguments, DeleteArguments>(args);
 

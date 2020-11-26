@@ -18,6 +18,7 @@ namespace WorldDirect.CoAP.Server.Resources
     using NLog;
     using Observe;
     using Threading;
+    using Option = CoAP.Option;
 
     /// <summary>
     /// Basic implementation of a resource.
