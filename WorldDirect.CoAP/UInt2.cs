@@ -15,6 +15,8 @@ namespace WorldDirect.CoAP
         private const byte MINVALUE = 0x00;
         private const byte MAXVALUE = 0x03;
 
+        public static readonly UInt2 MaxValue = (UInt2)MAXVALUE;
+
         private readonly byte value;
 
         /// <summary>

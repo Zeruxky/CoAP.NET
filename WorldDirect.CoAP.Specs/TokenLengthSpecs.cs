@@ -4,10 +4,6 @@
 
     public class TokenLengthSpecs
     {
-        [Fact]
-        public void TokenLengthCanNotBeGreaterThan8()
-        {
-            Assert.Throws<MessageFormatError>(() => new TokenLength((UInt4)9));
-        }
+
     }
 }

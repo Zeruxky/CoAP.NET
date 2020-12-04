@@ -13,6 +13,7 @@ namespace WorldDirect.CoAP
     /// </remarks>
     public class Version
     {
+        public static readonly Version V1 = new Version((UInt2)1);
         private readonly UInt2 value;
 
         /// <summary>
@@ -23,14 +24,6 @@ namespace WorldDirect.CoAP
         {
             this.value = value;
         }
-
-        /// <summary>
-        /// Gets the default value of the <see cref="Version"/> specified at RFC 7252.
-        /// </summary>
-        /// <value>
-        /// The default.
-        /// </value>
-        public static Version DefaultRfc7252 => new Version((UInt2)1);
 
         /// <summary>
         /// Performs an explicit conversion from <see cref="UInt2"/> to <see cref="Version"/>.

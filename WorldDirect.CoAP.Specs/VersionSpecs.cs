@@ -11,7 +11,7 @@
         [Fact]
         public void TheDefaultVersionForRfc7252IsBinaryValue01()
         {
-            var defaultVersion = Version.DefaultRfc7252;
+            var defaultVersion = Version.V1;
             ((UInt2)defaultVersion).Should().Be((UInt2)1);
         }
     }
