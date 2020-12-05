@@ -13,7 +13,11 @@ namespace WorldDirect.CoAP
     /// </remarks>
     public class Version
     {
+        /// <summary>
+        /// The default value for the <see cref="Version"/> specified in RFC 7252.
+        /// </summary>
         public static readonly Version V1 = new Version((UInt2)1);
+
         private readonly UInt2 value;
 
         /// <summary>

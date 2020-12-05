@@ -10,10 +10,20 @@ namespace WorldDirect.CoAP
     /// <remarks>
     /// The minimum value is 0 (00000 in binary) and maximum value is 31 (11111 in binary).
     /// </remarks>
-    public readonly struct UInt5
+    public readonly struct UInt5 : IEquatable<UInt5>, IFormattable
     {
+        /// <summary>
+        /// The minimum value of a five bit unsigned integer (0).
+        /// </summary>
+        public static readonly UInt5 MinValue = (UInt5)MINVALUE;
+
+        /// <summary>
+        /// The maximum value of a five bit unsigned integer (31).
+        /// </summary>
+        public static readonly UInt5 MaxValue = (UInt5)MAXVALUE;
+
         private const byte MINVALUE = 0x00;
-        private const byte MAXVALUE = 0x07;
+        private const byte MAXVALUE = 0x1F;
         private readonly byte value;
 
         /// <summary>
@@ -105,6 +115,12 @@ namespace WorldDirect.CoAP
         public override string ToString()
         {
             return this.value.ToString("D");
+        }
+
+        /// <inheritdoc />
+        public string ToString(string format, IFormatProvider formatProvider)
+        {
+            return this.value.ToString(format, formatProvider);
         }
     }
 }

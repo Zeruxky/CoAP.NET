@@ -10,8 +10,18 @@ namespace WorldDirect.CoAP
     /// <remarks>
     /// The minimum value is 0 (0000 in binary) and maximum value is 15 (1111 in binary).
     /// </remarks>
-    public readonly struct UInt4
+    public readonly struct UInt4 : IEquatable<UInt4>
     {
+        /// <summary>
+        /// The maximum value of a four bit unsigned integer (0).
+        /// </summary>
+        public static readonly UInt4 MaxValue = (UInt4)MAXVALUE;
+
+        /// <summary>
+        /// The minimum value of a four bit unsigned integer (15).
+        /// </summary>
+        public static readonly UInt4 MinValue = (UInt4)MINVALUE;
+
         private const byte MINVALUE = 0x00;
         private const byte MAXVALUE = 0x0F;
         private readonly byte value;

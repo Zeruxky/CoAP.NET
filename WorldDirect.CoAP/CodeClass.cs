@@ -2,6 +2,8 @@
 
 namespace WorldDirect.CoAP
 {
+    using System;
+
     /// <summary>
     /// Represents the class subfield of a <see cref="Code"/>.
     /// </summary>
@@ -12,7 +14,7 @@ namespace WorldDirect.CoAP
     /// response (4), or a server error response (5). Other values
     /// are reserved.
     /// </remarks>
-    public class CodeClass
+    public class CodeClass : IEquatable<CodeClass>
     {
         private readonly UInt3 value;
 
@@ -42,5 +44,61 @@ namespace WorldDirect.CoAP
         /// The <see cref="UInt3"/> that is equivalent to the <see cref="CodeClass"/>.
         /// </returns>
         public static implicit operator UInt3(CodeClass @class) => @class.value;
+
+        public static bool operator ==(CodeClass left, CodeClass right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(CodeClass left, CodeClass right)
+        {
+            return !Equals(left, right);
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return this.value.ToString();
+        }
+
+        public bool Equals(CodeClass other)
+        {
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return this.value.Equals(other.value);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+
+            return this.Equals((CodeClass)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.value.GetHashCode();
+        }
     }
 }

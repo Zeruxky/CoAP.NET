@@ -11,6 +11,38 @@ namespace WorldDirect.CoAP
     /// </remarks>
     public class Type
     {
+        /// <summary>
+        /// The <see cref="Type"/> that represents a CoAP message as Confirmable (0).
+        /// </summary>
+        /// <remarks>
+        /// The value is specified by RFC 7252.
+        /// </remarks>
+        public static readonly Type Confirmable = new Type((UInt2)0);
+
+        /// <summary>
+        /// The <see cref="Type"/> that represents a CoAP message as Non-Confirmable (1).
+        /// </summary>
+        /// <remarks>
+        /// The value is specified by RFC 7252.
+        /// </remarks>
+        public static readonly Type NonConfirmable = new Type((UInt2)1);
+
+        /// <summary>
+        /// The <see cref="Type"/> that represents a CoAP message as Acknowledgment (2).
+        /// </summary>
+        /// <remarks>
+        /// The value is specified by RFC 7252.
+        /// </remarks>
+        public static readonly Type Acknowledgement = new Type((UInt2)2);
+
+        /// <summary>
+        /// The <see cref="Type"/> that represents a CoAP message as Reset (3).
+        /// </summary>
+        /// <remarks>
+        /// The value is specified by RFC 7252.
+        /// </remarks>
+        public static readonly Type Reset = new Type((UInt2)3);
+
         private readonly UInt2 value;
 
         /// <summary>
@@ -21,38 +53,6 @@ namespace WorldDirect.CoAP
         {
             this.value = value;
         }
-
-        /// <summary>
-        /// Gets a <see cref="Type"/> that is equivalent to the Confirmable value (0) specified at RFC 7252.
-        /// </summary>
-        /// <value>
-        /// The confirmable.
-        /// </value>
-        public static Type Confirmable => new Type((UInt2)0);
-
-        /// <summary>
-        /// Gets a <see cref="Type"/> that is equivalent to the Non-Confirmable value (1) specified at RFC 7252.
-        /// </summary>
-        /// <value>
-        /// The nonConfirmable.
-        /// </value>
-        public static Type NonConfirmable => new Type((UInt2)1);
-
-        /// <summary>
-        /// Gets a <see cref="Type"/> that is equivalent to the Acknowledgement value (2) specified at RFC 7252.
-        /// </summary>
-        /// <value>
-        /// The acknowledgement.
-        /// </value>
-        public static Type Acknowledgement => new Type((UInt2)2);
-
-        /// <summary>
-        /// Gets a <see cref="Type"/> that is equivalent to the Reset value (3) specified at RFC 7252.
-        /// </summary>
-        /// <value>
-        /// The reset.
-        /// </value>
-        public static Type Reset => new Type((UInt2)3);
 
         /// <summary>
         /// Performs an explicit conversion from <see cref="UInt2"/> to <see cref="Type"/>.

@@ -2,6 +2,8 @@
 
 namespace WorldDirect.CoAP
 {
+    using System;
+
     /// <summary>
     /// Represent the detail subfield of a <see cref="Code"/>.
     /// </summary>
@@ -9,7 +11,7 @@ namespace WorldDirect.CoAP
     /// The <see cref="CodeDetail"/> represents a 5-bit unsigned integer and
     /// allows values from 0 to 31.
     /// </remarks>
-    public class CodeDetail
+    public class CodeDetail : IEquatable<CodeDetail>
     {
         private readonly UInt5 value;
 
@@ -39,5 +41,80 @@ namespace WorldDirect.CoAP
         /// The <see cref="UInt5"/> that is equivalent to the <paramref name="detail"/> value.
         /// </returns>
         public static implicit operator UInt5(CodeDetail detail) => detail.value;
+
+        /// <summary>
+        /// Implements the operator ==.
+        /// </summary>
+        /// <param name="left">The left.</param>
+        /// <param name="right">The right.</param>
+        /// <returns>
+        /// <c>true</c> if both <see cref="CodeDetail"/>s are equal, otherwise <c>false</c>.
+        /// </returns>
+        public static bool operator ==(CodeDetail left, CodeDetail right)
+        {
+            return Equals(left, right);
+        }
+
+        /// <summary>
+        /// Implements the operator !=.
+        /// </summary>
+        /// <param name="left">The left.</param>
+        /// <param name="right">The right.</param>
+        /// <returns>
+        /// <c>true</c> if both <see cref="CodeDetail"/> are not equal, otherwise <c>false</c>.
+        /// </returns>
+        public static bool operator !=(CodeDetail left, CodeDetail right)
+        {
+            return !Equals(left, right);
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"{this.value:D2}";
+        }
+
+        /// <inheritdoc />
+        public bool Equals(CodeDetail other)
+        {
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return this.value.Equals(other.value);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+
+            return this.Equals((CodeDetail)obj);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return this.value.GetHashCode();
+        }
     }
 }

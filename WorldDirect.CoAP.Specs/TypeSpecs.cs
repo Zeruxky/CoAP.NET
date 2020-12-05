@@ -6,28 +6,28 @@
     public class TypeSpecs
     {
         [Fact]
-        public void ConfirmableTypeIsBinaryValue00()
+        public void ConfirmableTypeIsValueZero()
         {
             var confirmable = Type.Confirmable;
             ((UInt2)confirmable).Should().Be((UInt2)0);
         }
 
         [Fact]
-        public void NonConfirmableTypeIsBinaryValue01()
+        public void NonConfirmableTypeIsValueOne()
         {
             var nonConfirmable = Type.NonConfirmable;
             ((UInt2)nonConfirmable).Should().Be((UInt2)1);
         }
 
         [Fact]
-        public void AcknowledgementTypeIsBinaryValue10()
+        public void AcknowledgementTypeIsValueTwo()
         {
             var acknowledgement = Type.Acknowledgement;
             ((UInt2)acknowledgement).Should().Be((UInt2)2);
         }
 
         [Fact]
-        public void RestTypeIsBinaryValue11()
+        public void RestTypeIsValueThree()
         {
             var reset = Type.Reset;
             ((UInt2)reset).Should().Be((UInt2)3);

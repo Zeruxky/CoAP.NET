@@ -5,7 +5,7 @@ namespace WorldDirect.CoAP
     using System;
 
     /// <summary>
-    /// The exception that is thrown if a invalid format in a CoAP message was found.
+    /// The exception that is thrown if an invalid format in a CoAP message was found.
     /// </summary>
     /// <seealso cref="System.ApplicationException" />
     public class MessageFormatError : ApplicationException
@@ -32,7 +32,7 @@ namespace WorldDirect.CoAP
         /// <summary>
         /// Initializes a new instance of the <see cref="MessageFormatError"/> class.
         /// </summary>
-        /// <param name="message">A message that describes the error.</param
+        /// <param name="message">The message that describes the error.</param>
         /// <param name="partOfMessage">The part of the CoAP message that caused that error.</param>
         /// <param name="innerException">The inner exception.</param>
         public MessageFormatError(string message, string partOfMessage, Exception innerException)
