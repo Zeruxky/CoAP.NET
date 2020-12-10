@@ -29,6 +29,12 @@ namespace WorldDirect.CoAP
         {
         }
 
+        public MessageFormatError(string message, string partOfMessage)
+            : base(message, null)
+        {
+            this.partOfMessage = partOfMessage;
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MessageFormatError"/> class.
         /// </summary>
