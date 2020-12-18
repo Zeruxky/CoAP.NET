@@ -32,4 +32,14 @@
             cut.Detail.Should().Be(detail);
         }
     }
+
+    public class OptionV1DeserializerSpecs
+    {
+        private readonly OptionV1Deserializer cut = new OptionV1Deserializer();
+
+        public void CanDeserializeOptionsFromV1Message()
+        {
+            this.cut.CanDeserialize(Version.V1).Should().BeTrue();
+        }
+    }
 }
