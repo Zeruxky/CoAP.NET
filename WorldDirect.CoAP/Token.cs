@@ -3,7 +3,7 @@
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using Common.Extensions;
+    using WorldDirect.CoAP.Common.Extensions;
 
     public struct Token : IEquatable<Token>
     {

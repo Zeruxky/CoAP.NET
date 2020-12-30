@@ -1,4 +1,4 @@
-﻿namespace WorldDirect.CoAP
+﻿namespace WorldDirect.CoAP.Common.Extensions
 {
     using System;
 

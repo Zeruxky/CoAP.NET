@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Common.Extensions;
 
     public static class OptionV1Deserializer
     {
