@@ -1,6 +1,7 @@
 ﻿namespace WorldDirect.CoAP.Specs
 {
     using System;
+    using System.Text;
     using FluentAssertions;
     using Xunit;
 

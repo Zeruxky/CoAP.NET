@@ -3,6 +3,7 @@
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using Common.Extensions;
 
     public struct Token : IEquatable<Token>
     {
@@ -23,6 +24,8 @@
         }
 
         public static implicit operator ulong(Token token) => token.value;
+
+        public static explicit operator Token(ulong value) => new Token(value, (TokenLength)(UInt4)BitConverter.GetBytes(value).Length);
 
         public static bool operator ==(Token left, Token right)
         {

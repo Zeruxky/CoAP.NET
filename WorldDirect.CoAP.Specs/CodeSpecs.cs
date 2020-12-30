@@ -1,5 +1,7 @@
 ﻿namespace WorldDirect.CoAP.Specs
 {
+    using System;
+    using System.IO;
     using System.Net;
     using FluentAssertions;
     using Xunit;
@@ -30,16 +32,6 @@
             var cut = new Code(@class, detail);
             cut.Class.Should().Be(@class);
             cut.Detail.Should().Be(detail);
-        }
-    }
-
-    public class OptionV1DeserializerSpecs
-    {
-        private readonly OptionV1Deserializer cut = new OptionV1Deserializer();
-
-        public void CanDeserializeOptionsFromV1Message()
-        {
-            this.cut.CanDeserialize(Version.V1).Should().BeTrue();
         }
     }
 }
