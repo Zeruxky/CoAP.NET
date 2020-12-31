@@ -13,11 +13,11 @@
 
     public class OptionV1DeserializerSpecs
     {
-        private readonly OptionsRegistry registry;
+        private readonly OptionsFactory factory;
 
         public OptionV1DeserializerSpecs()
         {
-            var registryValues = new Dictionary<ushort, Func<byte[], IOption>>()
+            var factoryValues = new Dictionary<ushort, Func<byte[], IOption>>()
             {
                 {1, value => new IfMatch(value)},
                 {3, value => new UriHost(Encoding.UTF8.GetString(value))},
@@ -36,10 +36,10 @@
                 {60, value => new Size1(BitConverter.ToUInt16(value))},
             };
 
-            this.registry = new OptionsRegistry();
-            foreach (var (number, factory) in registryValues)
+            this.factory = new OptionsFactory();
+            foreach (var value in factoryValues)
             {
-                this.registry.Add(number, factory);   
+                this.factory.Add(value);   
             }
         }
 
@@ -53,7 +53,7 @@
         public void CanDeserializeIfMatchOption()
         {
             var value = new byte[] { 22, 54, 55, 97, 98, 52, 51, 0xFF };
-            var options = OptionV1Deserializer.Deserialize(value, this.registry);
+            var options = OptionV1Deserializer.Deserialize(value, this.factory);
             options.Should().ContainSingle(o => o.Number.Equals(1));
         }
 
@@ -64,7 +64,7 @@
             {
                 61, 38, 100, 101, 118, 101, 108, 111, 112, 101, 114, 46, 99, 100, 110, 46, 109, 111, 122, 105, 108, 108, 97, 46, 110, 101, 116, 0xFF
             };
-            var options = OptionV1Deserializer.Deserialize(value, this.registry);
+            var options = OptionV1Deserializer.Deserialize(value, this.factory);
             options.Should().ContainSingle(o => o.Number.Equals(3));
         }
 
@@ -72,7 +72,7 @@
         public void CanDeserializeETag()
         {
             var value = new byte[] { 68, 48, 56, 49, 53, 0xFF };
-            var options = OptionV1Deserializer.Deserialize(value, this.registry);
+            var options = OptionV1Deserializer.Deserialize(value, this.factory);
             options.Should().ContainSingle(o => o.Number.Equals(4));
         }
 
@@ -80,7 +80,7 @@
         public void CanDeserializeIfNoneMatch()
         {
             var value = new byte[] { 80, 0xFF };
-            var options = OptionV1Deserializer.Deserialize(value, this.registry);
+            var options = OptionV1Deserializer.Deserialize(value, this.factory);
             options.Should().ContainSingle(o => o.Number.Equals(5));
         }
 
@@ -88,7 +88,7 @@
         public void CanDeserializeUriPort()
         {
             var value = new byte[] { 116, 51, 22, 0, 0, 0xFF };
-            var options = OptionV1Deserializer.Deserialize(value, this.registry);
+            var options = OptionV1Deserializer.Deserialize(value, this.factory);
             options.Should().ContainSingle(o => o.Number.Equals(7));
         }
 
@@ -96,7 +96,7 @@
         public void CanDeserializeLocationPath()
         {
             var value = new byte[] { 139, 47, 105, 110, 100, 101, 120, 46, 104, 116, 109, 108, 0xFF };
-            var options = OptionV1Deserializer.Deserialize(value, this.registry);
+            var options = OptionV1Deserializer.Deserialize(value, this.factory);
             options.Should().ContainSingle(o => o.Number.Equals(8));
         }
 
@@ -104,7 +104,7 @@
         public void CanDeserializeUriPath()
         {
             var value = new byte[] { 187, 116, 101, 109, 112, 101, 114, 97, 116, 117, 114, 101, 0xFF };
-            var options = OptionV1Deserializer.Deserialize(value, this.registry);
+            var options = OptionV1Deserializer.Deserialize(value, this.factory);
             options.Should().ContainSingle(o => o.Number.Equals(11));
         }
 
@@ -112,15 +112,15 @@
         public void CanDeserializeContentFormat()
         {
             var value = new byte[] { 196, 50, 0, 0, 0, 0xFF };
-            var options = OptionV1Deserializer.Deserialize(value, this.registry);
+            var options = OptionV1Deserializer.Deserialize(value, this.factory);
             options.Should().ContainSingle(o => o.Number.Equals(12));
         }
 
         [Fact]
         public void CanDeserializeMaxAge()
         {
-            var value = new byte[] { 13, 27, 30, 0, 0, 0, 0xFF };
-            var options = OptionV1Deserializer.Deserialize(value, this.registry);
+            var value = new byte[] { 212, 27, 30, 0, 0, 0, 0xFF };
+            var options = OptionV1Deserializer.Deserialize(value, this.factory);
             options.Should().ContainSingle(o => o.Number.Equals(14));
         }
 
@@ -128,7 +128,7 @@
         public void CanDeserializeUriQuery()
         {
             var value = new byte[] { 210, 28, 47, 47, 0xFF };
-            var options = OptionV1Deserializer.Deserialize(value, this.registry);
+            var options = OptionV1Deserializer.Deserialize(value, this.factory);
             options.Should().ContainSingle(o => o.Number.Equals(15));
         }
 
@@ -136,7 +136,7 @@
         public void CanDeserializerAccept()
         {
             var value = new byte[] {212, 30, 30, 0, 0, 0, 0xFF};
-            var options = OptionV1Deserializer.Deserialize(value, this.registry);
+            var options = OptionV1Deserializer.Deserialize(value, this.factory);
             options.Should().ContainSingle(o => o.Number.Equals(17));
         }
 
@@ -144,7 +144,7 @@
         public void CanDeserializeLocationQuery()
         {
             var value = new byte[] {211, 33, 97, 98, 99, 0xFF};
-            var options = OptionV1Deserializer.Deserialize(value, this.registry);
+            var options = OptionV1Deserializer.Deserialize(value, this.factory);
             options.Should().ContainSingle(o => o.Number.Equals(20));
         }
 
@@ -152,7 +152,7 @@
         public void CanDeserializeProxyUri()
         {
             var value = new byte[] {213, 48, 112, 114, 111, 120, 121, 0xFF};
-            var options = OptionV1Deserializer.Deserialize(value, this.registry);
+            var options = OptionV1Deserializer.Deserialize(value, this.factory);
             options.Should().ContainSingle(o => o.Number.Equals(35));
         }
 
@@ -160,15 +160,15 @@
         public void CanDeserializeProxyScheme()
         {
             var value = new byte[] {214, 52, 115, 99, 104, 101, 109, 101, 0xFF};
-            var options = OptionV1Deserializer.Deserialize(value, this.registry);
+            var options = OptionV1Deserializer.Deserialize(value, this.factory);
             options.Should().ContainSingle(o => o.Number.Equals(39));
         }
 
         [Fact]
         public void CanDeserializerSize1()
         {
-            var value = new byte[] {212, 73, 30, 0, 0, 0, 0xFF};
-            var options = OptionV1Deserializer.Deserialize(value, this.registry);
+            var value = new byte[] { 212, 73, 30, 0, 0, 0, 0xFF };
+            var options = OptionV1Deserializer.Deserialize(value, this.factory);
             options.Should().ContainSingle(o => o.Number.Equals(60));
         }
 
@@ -180,22 +180,14 @@
                 22, 54, 55, 97, 98, 52, 51, 45, 38, 100, 101, 118, 101, 108, 111, 112, 101, 114, 46, 99, 100, 110, 46, 109, 111, 122, 105, 108, 108, 97, 46,
                 110, 101, 116, 0xFF
             };
-            var options = OptionV1Deserializer.Deserialize(value, this.registry).ToList();
+            var options = OptionV1Deserializer.Deserialize(value, this.factory).ToList();
             options.Should().HaveCount(2);
-        }
-
-        [Fact]
-        public void ThrowsExceptionIfLengthIs15()
-        {
-            var option = new UriHost("abcdefghijklmno");
-            var bytes = OptionV1Serializer.Serialize(option).Append(0xFF);
-            Assert.Throws<MessageFormatError>(() => OptionV1Deserializer.Deserialize(bytes, this.registry));
         }
 
         [Fact]
         public void CanHandleIfNoOptionsAreProvided()
         {
-            OptionV1Deserializer.Deserialize(new byte[]{ 0xFF }, this.registry);
+            OptionV1Deserializer.Deserialize(new byte[]{ 0xFF }, this.factory);
         }
     }
 }

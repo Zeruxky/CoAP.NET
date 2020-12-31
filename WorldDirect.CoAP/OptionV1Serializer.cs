@@ -35,6 +35,7 @@
             var delta = previousOption == null
                 ? currentOption.Number
                 : currentOption.Number - previousOption.Number;
+
             var deltaExtended = (ushort)0;
             if (delta > 12 && delta <= (byte.MaxValue - 13))
             {
@@ -47,8 +48,6 @@
                 deltaExtended = (ushort)(currentOption.Number + 269);
                 delta = 14;
             }
-
-            delta <<= 4;
 
             var length = currentOption.RawValue.Length;
             var lengthExtended = (ushort)0;
@@ -64,6 +63,7 @@
                 length = 14;
             }
 
+            delta <<= 4;
             var serialized = Enumerable.Empty<byte>().Append((byte)(delta | length));
             if (deltaExtended != 0)
             {

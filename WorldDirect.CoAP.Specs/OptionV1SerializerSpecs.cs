@@ -140,7 +140,7 @@
         [Fact]
         public void CanSerializeMaxAgeFormat()
         {
-            var expectedBytes = new byte[] { 13, 27, 30, 0, 0, 0 };
+            var expectedBytes = new byte[] { 212, 27, 30, 0, 0, 0 };
             var maxAge = new MaxAge(30);
             var bytes = OptionV1Serializer.Serialize(maxAge);
             bytes.Should().BeEquivalentTo(expectedBytes);
@@ -194,7 +194,7 @@
         [Fact]
         public void CanSerializeSize1()
         {
-            var expectedBytes = new byte[] { 214, 52, 115, 99, 104, 101, 109, 101 };
+            var expectedBytes = new byte[] { 212, 73, 30, 0, 0, 0 };
             var size1 = new Size1(30);
             var bytes = OptionV1Serializer.Serialize(size1);
             bytes.Should().BeEquivalentTo(expectedBytes);

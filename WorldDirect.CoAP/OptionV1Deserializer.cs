@@ -15,14 +15,14 @@
             return version.Equals(Version.V1);
         }
 
-        public static IEnumerable<IOption> Deserialize(byte[] value, OptionsRegistry registry)
+        public static IEnumerable<IOption> Deserialize(byte[] value, OptionsFactory factory)
         {
             var options = new List<IOption>();
             var lastIndex = 0;
             IOption previousOption = null;
             while (value[lastIndex] != 0xFF)
             {
-                var result = OptionV1Deserializer.ParseOption(value.Slice(lastIndex), previousOption, lastIndex, registry);
+                var result = OptionV1Deserializer.ParseOption(value.Slice(lastIndex), previousOption, lastIndex, factory);
                 previousOption = result.Option;
                 lastIndex = result.LastIndex;
                 options.Add(result.Option);
@@ -31,7 +31,7 @@
             return options.OrderBy(o => o.Number);
         }
 
-        private static OptionDeserializerResult ParseOption(byte[] value, IOption previousOption, int lastIndex, OptionsRegistry registry)
+        private static OptionDeserializerResult ParseOption(byte[] value, IOption previousOption, int lastIndex, OptionsFactory factory)
         {
             var delta = (ushort)((value[0] & MASK_DELTA) >> 4);
             var length = (ushort)(value[0] & MASK_LENGTH);
@@ -75,7 +75,7 @@
             var number = previousOption == null
                 ? delta
                 : (ushort)(previousOption.Number + delta);
-            var option = registry.CreateOption(number, optionValue);
+            var option = factory.CreateOption(number, optionValue);
             return new OptionDeserializerResult(option, lastIndex);
         }
 
