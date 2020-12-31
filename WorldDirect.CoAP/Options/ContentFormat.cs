@@ -1,9 +1,17 @@
 ﻿namespace WorldDirect.CoAP.Options
 {
     using System;
+    using System.Text;
 
-    public class ContentFormat : UIntOptionFormat
+    public class ContentFormat : UIntOptionFormat, IContentFormat
     {
+        public static readonly ContentFormat TextPlain = new TextPlainContentFormat();
+        public static readonly ContentFormat LinkFormat = new LinkFormat();
+        public static readonly ContentFormat XmlFormat = new XmlFormat();
+        public static readonly ContentFormat OctetStreamFormat = new OctetStreamFormat();
+        public static readonly ContentFormat ExiFormat = new ExiFormat();
+        public static readonly ContentFormat Json = new JsonFormat();
+
         public ContentFormat(uint value)
             : base(value)
         {
@@ -13,11 +21,17 @@
             }
         }
 
-        public override ushort Number => 12;
+        public sealed override ushort Number => 12;
+
+        public virtual string MediaType { get; }
+
+        public virtual Encoding Encoding => Encoding.UTF8;
+
+        public uint Id => this.Value;
 
         public override string ToString()
         {
-            return $"Content-Format ({this.Number}): {this.Value}";
+            return $"Content-Format ({this.Number}): {this.MediaType}";
         }
     }
 }

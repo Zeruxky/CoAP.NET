@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Common.Extensions;
+    using WorldDirect.CoAP.Common.Extensions;
 
     public static class OptionV1Deserializer
     {
@@ -34,29 +34,28 @@
         private static OptionDeserializerResult ParseOption(byte[] value, IOption previousOption, int lastIndex, OptionsRegistry registry)
         {
             var delta = (ushort)((value[0] & MASK_DELTA) >> 4);
-            var currentIndex = 1;
-            if (delta == 13)
-            {
-                delta = (ushort)(value[1] - 13);
-                currentIndex = 2;
-            }
-
-            if (delta == 14)
-            {
-                delta = (ushort)(BitConverter.ToUInt16(value, 1) - 269);
-                currentIndex = 3;
-            }
-
             var length = (ushort)(value[0] & MASK_LENGTH);
             if (delta == 15 && length != 15)
             {
                 throw new MessageFormatError("Delta is not allowed to be 15 (0xFF), because it is reserved for payload marker.");
             }
 
-            if (length == 13)
+            var currentIndex = 1;
+            if (delta == 14)
             {
-                length = (ushort)(value[currentIndex] - 13);
-                currentIndex += 1;
+                delta = (ushort)(BitConverter.ToUInt16(value, 1) - 269);
+                currentIndex = 3;
+            }
+
+            if (delta == 13)
+            {
+                delta = (ushort)(value[1] - 13);
+                currentIndex = 2;
+            }
+
+            if (length == 15)
+            {
+                throw new MessageFormatError("Length 15 (0xFF) is reserved for future use.");
             }
 
             if (length == 14)
@@ -65,9 +64,10 @@
                 currentIndex += 2;
             }
 
-            if (length == 15)
+            if (length == 13)
             {
-                throw new MessageFormatError("Length 15 (0xFF) is reserved for future use.");
+                length = (ushort)(value[currentIndex] - 13);
+                currentIndex += 1;
             }
 
             var optionValue = value.Slice(currentIndex, length);
@@ -75,8 +75,7 @@
             var number = previousOption == null
                 ? delta
                 : (ushort)(previousOption.Number + delta);
-            var option = registry.GetOption(number);
-            option.RawValue = optionValue;
+            var option = registry.CreateOption(number, optionValue);
             return new OptionDeserializerResult(option, lastIndex);
         }
 

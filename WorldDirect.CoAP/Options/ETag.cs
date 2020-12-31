@@ -1,6 +1,7 @@
 ﻿namespace WorldDirect.CoAP.Options
 {
     using System;
+    using System.Text;
 
     public class ETag : OpaqueOptionFormat
     {
@@ -13,11 +14,11 @@
             }
         }
 
-        public override ushort Number => 3;
+        public override ushort Number => 4;
 
         public override string ToString()
         {
-            return $"ETag ({this.Number}): {this.RawValue}";
+            return $"ETag ({this.Number}): {Encoding.UTF8.GetString(this.RawValue)}";
         }
     }
 }

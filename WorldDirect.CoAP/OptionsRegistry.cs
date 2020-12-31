@@ -1,33 +1,27 @@
 ﻿namespace WorldDirect.CoAP
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
 
     public class OptionsRegistry
     {
-        private readonly List<IOption> options;
+        private readonly IDictionary<ushort, Func<byte[], IOption>> registry;
 
         public OptionsRegistry()
         {
-            this.options = new List<IOption>();
+            this.registry = new Dictionary<ushort, Func<byte[], IOption>>();
         }
 
-        public OptionsRegistry(IEnumerable<IOption> options)
+        public void Add(ushort number, Func<byte[], IOption> factory)
         {
-            this.options = new List<IOption>(options);
+            this.registry.Add(number, factory);
         }
 
-        public void Add(IOption option)
+        public IOption CreateOption(ushort number, byte[] value)
         {
-            this.options.Add(option);
-        }
-
-        public IOption GetOption(ushort number)
-        {
-            var option = this.options.Single(o => o.Number.Equals(number));
-            return option;
+            var factory = this.registry.Single(o => o.Key.Equals(number)).Value;
+            return factory(value);
         }
     }
 }

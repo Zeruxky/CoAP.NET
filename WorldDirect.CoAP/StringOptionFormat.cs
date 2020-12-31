@@ -6,10 +6,20 @@
     {
         private readonly Encoding encoding;
 
-        protected StringOptionFormat(string value, Encoding encoding)
+        protected StringOptionFormat(byte[] value, Encoding encoding)
         {
-            this.RawValue = encoding.GetBytes(value);
+            this.RawValue = value;
             this.encoding = encoding;
+        }
+
+        protected StringOptionFormat(byte[] value)
+            : this(Encoding.UTF8.GetString(value))
+        {
+        }
+
+        protected StringOptionFormat(string value, Encoding encoding)
+            : this(encoding.GetBytes(value), encoding)
+        {
         }
 
         protected StringOptionFormat(string value)

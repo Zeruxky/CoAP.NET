@@ -36,7 +36,7 @@
                 ? currentOption.Number
                 : currentOption.Number - previousOption.Number;
             var deltaExtended = (ushort)0;
-            if (delta > 12 && delta < (byte.MaxValue - 13))
+            if (delta > 12 && delta <= (byte.MaxValue - 13))
             {
                 deltaExtended = (byte)(currentOption.Number + 13);
                 delta = 13;
@@ -48,10 +48,7 @@
                 delta = 14;
             }
 
-            if (delta <= 12)
-            {
-                delta <<= 4;
-            }
+            delta <<= 4;
 
             var length = currentOption.RawValue.Length;
             var lengthExtended = (ushort)0;
