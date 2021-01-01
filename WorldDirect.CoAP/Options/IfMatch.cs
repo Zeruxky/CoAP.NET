@@ -1,6 +1,7 @@
 ﻿namespace WorldDirect.CoAP.Options
 {
     using System;
+    using System.Text;
 
     public class IfMatch : OpaqueOptionFormat
     {
@@ -17,7 +18,7 @@
 
         public override string ToString()
         {
-            return $"If-Match ({this.Number}): {this.RawValue}";
+            return $"If-Match ({this.Number}): {Encoding.UTF8.GetString(this.RawValue)}";
         }
     }
 }

@@ -63,8 +63,7 @@
                 length = 14;
             }
 
-            delta <<= 4;
-            var serialized = Enumerable.Empty<byte>().Append((byte)(delta | length));
+            var serialized = Enumerable.Empty<byte>().Append((byte)((delta << 4) | length));
             if (deltaExtended != 0)
             {
                 if (deltaExtended <= byte.MaxValue)

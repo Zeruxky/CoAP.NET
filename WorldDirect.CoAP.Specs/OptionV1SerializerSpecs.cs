@@ -1,5 +1,6 @@
 ﻿namespace WorldDirect.CoAP.Specs
 {
+    using System.Collections.Generic;
     using System.Text;
     using FluentAssertions;
     using Options;
@@ -197,6 +198,21 @@
             var expectedBytes = new byte[] { 212, 73, 30, 0, 0, 0 };
             var size1 = new Size1(30);
             var bytes = OptionV1Serializer.Serialize(size1);
+            bytes.Should().BeEquivalentTo(expectedBytes);
+        }
+
+        [Fact]
+        public void CanSerializeTwoOptions()
+        {
+            var expectedBytes = new byte[]
+            {
+                22, 54, 55, 97, 98, 52, 51, 45, 38, 100, 101, 118, 101, 108, 111, 112, 101, 114, 46, 99, 100, 110, 46, 109, 111, 122, 105, 108, 108, 97, 46,
+                110, 101, 116
+            };
+            var ifMatch = new IfMatch(Encoding.UTF8.GetBytes("67ab43"));
+            var uriHost = new UriHost("developer.cdn.mozilla.net");
+            var options = new List<IOption>() {ifMatch, uriHost,};
+            var bytes = OptionV1Serializer.Serialize(options);
             bytes.Should().BeEquivalentTo(expectedBytes);
         }
     }
