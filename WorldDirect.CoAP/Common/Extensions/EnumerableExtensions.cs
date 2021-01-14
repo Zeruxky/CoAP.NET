@@ -1,4 +1,6 @@
-﻿namespace WorldDirect.CoAP.Common.Extensions
+﻿// Copyright (c) World-Direct eBusiness solutions GmbH. All rights reserved.
+
+namespace WorldDirect.CoAP.Common.Extensions
 {
     using System;
     using System.Collections.Generic;
