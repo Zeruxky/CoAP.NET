@@ -44,38 +44,5 @@ namespace WorldDirect.CoAP.Common.Extensions
             result.Add(value);
             return result.ToArray();
         }
-
-        public static ushort ToUInt16AsBigEndian(this byte[] value, int startIndex = 0)
-        {
-            var bytes = value.Slice(startIndex, 2);
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(bytes);
-            }
-
-            return BitConverter.ToUInt16(bytes, 0);
-        }
-
-        public static uint ToUInt32AsBigEndian(this byte[] value, int startIndex = 0)
-        {
-            var bytes = value.Slice(startIndex, 4);
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(bytes);
-            }
-
-            return BitConverter.ToUInt32(bytes, 0);
-        }
-
-        public static ulong ToUInt64AsBigEndian(this byte[] value, int startIndex = 0)
-        {
-            var bytes = value.Slice(startIndex, 8);
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(bytes);
-            }
-
-            return BitConverter.ToUInt64(bytes, 0);
-        }
     }
 }

@@ -1,5 +1,7 @@
 ﻿namespace WorldDirect.CoAP.Messages.Options
 {
+    using System;
+
     public interface ICoapOption
     {
         ushort Number { get; }

@@ -10,11 +10,11 @@ namespace WorldDirect.CoAP.Messages
     public class CoapMessage : IEquatable<CoapMessage>
     {
         public CoapMessage(CoapHeader header)
-            : this(header, CoapToken.EmptyToken, new List<ICoapOption>(), CoapPayload.EmptyPayload)
+            : this(header, CoapToken.EmptyToken, new List<ICoapOption>(), new byte[0])
         {
         }
 
-        public CoapMessage(CoapHeader header, CoapToken token, IEnumerable<ICoapOption> options, CoapPayload payload)
+        public CoapMessage(CoapHeader header, CoapToken token, IEnumerable<ICoapOption> options, byte[] payload)
         {
             this.Header = header;
             this.Token = token;
@@ -28,17 +28,7 @@ namespace WorldDirect.CoAP.Messages
 
         public IReadOnlyList<ICoapOption> Options { get; }
 
-        public CoapPayload Payload { get; }
-
-        public static bool operator ==(CoapMessage left, CoapMessage right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(CoapMessage left, CoapMessage right)
-        {
-            return !Equals(left, right);
-        }
+        public byte[] Payload { get; }
 
         public bool Equals(CoapMessage other)
         {
@@ -52,10 +42,7 @@ namespace WorldDirect.CoAP.Messages
                 return true;
             }
 
-            return this.Header.Equals(other.Header) &&
-                   this.Token.Equals(other.Token) &&
-                   this.Options.SequenceEqual(other.Options) &&
-                   this.Payload.Equals(other.Payload);
+            return this.Header.Equals(other.Header) && this.Token.Equals(other.Token) && this.Options.SequenceEqual(other.Options) && this.Payload.SequenceEqual(other.Payload);
         }
 
         public override bool Equals(object obj)
@@ -75,17 +62,22 @@ namespace WorldDirect.CoAP.Messages
                 return false;
             }
 
-            return this.Equals((CoapMessage)obj);
+            return this.Equals((CoapMessage) obj);
         }
 
         public override int GetHashCode()
         {
             return HashCode.Combine(this.Header, this.Token, this.Options, this.Payload);
         }
-    }
 
-    public class CoapRequestMessage
-    {
-        public 
+        public static bool operator ==(CoapMessage left, CoapMessage right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(CoapMessage left, CoapMessage right)
+        {
+            return !Equals(left, right);
+        }
     }
 }
