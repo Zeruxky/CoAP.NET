@@ -63,5 +63,8 @@
         {
             return HashCode.Combine(this.Number, this.RawValue);
         }
+
+        /// <inheritdoc />
+        public override string ToString() => BitConverter.ToString(this.RawValue).Replace('-', ' ');
     }
 }

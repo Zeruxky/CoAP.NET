@@ -92,6 +92,6 @@ namespace WorldDirect.CoAP.Messages
         public override int GetHashCode() => this.value.GetHashCode();
 
         /// <inheritdoc />
-        public override string ToString() => this.value.ToString();
+        public override string ToString() => $"V{this.value}";
     }
 }

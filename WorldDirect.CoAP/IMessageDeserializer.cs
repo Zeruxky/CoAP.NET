@@ -17,7 +17,7 @@ namespace WorldDirect.CoAP
         /// </summary>
         /// <param name="value">The <see cref="ReadOnlySpan{T}"/> of <see cref="byte"/>s for deserialization.</param>
         /// <returns>A <see cref="CoapMessage"/> that is equivalent to the given <paramref name="value"/>.</returns>
-        CoapMessage Deserialize(ReadOnlySpan<byte> value);
+        CoapMessage Deserialize(ReadOnlyMemory<byte> value);
 
         bool CanDeserialize(CoapVersion version);
     }

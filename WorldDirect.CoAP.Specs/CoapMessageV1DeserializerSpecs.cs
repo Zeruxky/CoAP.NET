@@ -25,24 +25,8 @@ namespace WorldDirect.CoAP.Specs
         /// </summary>
         public CoapMessageV1DeserializerSpecs()
         {
-            var headerReaders = new List<IHeaderReader>()
-            {
-                new V1HeaderReader(new CodeRegistry()),
-            };
-            var tokenReaders = new List<ITokenReader>()
-            {
-                new V1TokenReader(),
-            };
-            var optionReaders = new List<IOptionsReader>()
-            {
-                new V1OptionsReader(new List<IOptionFactory>()
-                {
-                    new UnknownFactory(),
-                    new UriHostFactory(),
-                    new IfMatchFactory(),
-                }),
-            };
-            this.cut = new CoapMessageV1Deserializer(headerReaders, tokenReaders, optionReaders);
+            var optionsReader = new V1OptionsReader(new List<IOptionFactory>() {new UnknownFactory(), new UriHostFactory(), new IfMatchFactory(),});
+            this.cut = new CoapMessageV1Deserializer(new V1HeaderReader(new CodeRegistry()), new V1TokenReader(), optionsReader, new PayloadReader());
         }
 
         /// <summary>
@@ -53,7 +37,7 @@ namespace WorldDirect.CoAP.Specs
         {
             var bytes = new byte[]
             {
-                0x54, 0x45, 0xca, 0x3d, 0x8e, 0xef, 0x00, 0x00, 0x15, 0x56, 0x61, 0x6C, 0x75, 0x65, 0xFF, 0x33, 0x33, 0x2e, 0x38,
+                0x54, 0x45, 0xca, 0x3d, 0x8e, 0xef, 0x00, 0x00, 0x25, 0x56, 0x61, 0x6C, 0x75, 0x65, 0xFF, 0x33, 0x33, 0x2e, 0x38,
             };
 
             var payload = new byte[] { 0x33, 0x33, 0x2e, 0x38 };

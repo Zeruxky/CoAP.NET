@@ -38,41 +38,62 @@ namespace WorldDirect.CoAP
     /// </summary>
     public sealed class CoapMessageV1Deserializer : IMessageDeserializer
     {
-        private readonly IOptionsReader optionReader;
-        private readonly IHeaderReader headerReader;
-        private readonly ITokenReader tokenReader;
+        private readonly V1OptionsReader optionReader;
+        private readonly PayloadReader payloadReader;
+        private readonly V1HeaderReader headerReader;
+        private readonly V1TokenReader tokenReader;
 
-        public CoapMessageV1Deserializer(IEnumerable<IHeaderReader> headerReaders, IEnumerable<ITokenReader> tokenReaders, IEnumerable<IOptionsReader> optionsReaders)
+        public CoapMessageV1Deserializer(V1HeaderReader headerReader, V1TokenReader tokenReader, V1OptionsReader optionsReader, PayloadReader payloadReader)
         {
-            this.headerReader = headerReaders.Single(h => h.CanRead(CoapVersion.V1));
-            this.tokenReader = tokenReaders.Single(t => t.CanRead(CoapVersion.V1));
-            this.optionReader = optionsReaders.Single(o => o.CanRead(CoapVersion.V1));
+            this.headerReader = headerReader;
+            this.tokenReader = tokenReader;
+            this.optionReader = optionsReader;
+            this.payloadReader = payloadReader;
         }
 
-        public CoapMessage Deserialize(ReadOnlySpan<byte> value)
+        public CoapMessage Deserialize(ReadOnlyMemory<byte> value)
         {
-            var position = 0;
-            var header = this.headerReader.Read(value.Slice(position, 4), out var headerBytesRead);
-            position += headerBytesRead;
-            var token = this.tokenReader.Read(value.Slice(position, (UInt4)header.Length));
-            position += (UInt4)token.Length;
-            var options = this.optionReader.Read(value.Slice(position), out var optionBytesRead);
-            position += optionBytesRead;
-            if (position == value.Length)
-            {
-                return new CoapMessage(header, token, options, new byte[0]);
-            }
-
-            // count one byte for payload marker.
-            position += 1;
-            var payload = value.Slice(position);
-            position += payload.Length;
-            return new CoapMessage(header, token, options, payload.ToArray());
+            var position = this.headerReader.Read(value.Slice(0, 4), out var header);
+            position += this.tokenReader.Read(value.Slice(position, (UInt4)header.Length), out var token);
+            position += this.optionReader.Read(value.Slice(position), out var options);
+            position += this.payloadReader.Read(value.Slice(position), out var payload);
+            return new CoapMessage(header, token, options, payload);
         }
 
         public bool CanDeserialize(CoapVersion version)
         {
             return version.Equals(CoapVersion.V1);
+        }
+    }
+
+    public interface IReader<TResult>
+    {
+        int Read(ReadOnlyMemory<byte> value, out TResult result);
+    }
+    
+    public interface IPayloadReader
+    {
+        byte[] Read(ReadOnlySpan<byte> value, out int readBytes);
+    }
+
+    public class PayloadReader : IReader<ReadOnlyMemory<byte>>
+    {
+        /// <inheritdoc />
+        public int Read(ReadOnlyMemory<byte> value, out ReadOnlyMemory<byte> result)
+        {
+            if (value.IsEmpty)
+            {
+                result = new byte[0];
+                return 0;
+            }
+
+            if (value.Span[0] != 0xFF || value.Length == 1)
+            {
+                throw new MessageFormatErrorException("Payload marker found but no payload.");
+            }
+
+            result = value.Slice(1);
+            return value.Length;
         }
     }
 
@@ -106,42 +127,22 @@ namespace WorldDirect.CoAP
         bool CanRead(CoapVersion version);
     }
 
-    public class V1TokenReader : ITokenReader
+    public class V1TokenReader : IReader<CoapToken>
     {
-        public CoapToken Read(ReadOnlySpan<byte> value)
+        public int Read(ReadOnlyMemory<byte> value, out CoapToken result)
         {
-            var length = (UInt4)value.Length;
-            ulong tokenValue = 0;
-            if (length == 1)
-            {
-                tokenValue = value[0];
-            }
+            var length = value.Length;
+            var buffer = new byte[8];
+            var src = BitConverter.IsLittleEndian ? value.ToArray().Reverse().ToArray() : value.ToArray();
+            Array.Copy(src, 0, buffer, buffer.Length - src.Length, src.Length);
 
-            if (length == 2)
-            {
-                tokenValue = BinaryPrimitives.ReadUInt16LittleEndian(value.Slice(0, length));
-            }
-
-            if (length > 2 && length <= 4)
-            {
-                tokenValue = BinaryPrimitives.ReadUInt32LittleEndian(value.Slice(0, length));
-            }
-
-            if (length > 4 && length <= 8)
-            {
-                tokenValue = BinaryPrimitives.ReadUInt64LittleEndian(value.Slice(0, length));
-            }
-
-            return new CoapToken(tokenValue, (CoapTokenLength)length);
-        }
-
-        public bool CanRead(CoapVersion version)
-        {
-            return version.Equals(CoapVersion.V1);
+            var tokenValue = BinaryPrimitives.ReadUInt64BigEndian(new ReadOnlySpan<byte>(buffer));
+            result = new CoapToken(tokenValue, (CoapTokenLength)(UInt4)length);
+            return length;
         }
     }
 
-    public class V1HeaderReader : IHeaderReader
+    public class V1HeaderReader : IReader<CoapHeader>
     {
         private readonly CodeRegistry registry;
         private const byte MASK_VERSION = 0xC0;
@@ -155,33 +156,33 @@ namespace WorldDirect.CoAP
             this.registry = registry;
         }
 
-        public CoapHeader Read(ReadOnlySpan<byte> value, out int readBytes)
+        public int Read(ReadOnlyMemory<byte> value, out CoapHeader result)
         {
-            var version = (CoapVersion)(UInt2)((value[0] & MASK_VERSION) >> 6);
+            var version = (CoapVersion)(UInt2)((value.Span[0] & MASK_VERSION) >> 6);
             if (!this.CanRead(version))
             {
                 throw new ArgumentException("Can only read headers for Version 1.", nameof(version));
             }
 
-            var type = (CoapType)(UInt2)((value[0] & MASK_TYPE) >> 4);
-            var tokenLength = (CoapTokenLength)(UInt4)(value[0] & MASK_TOKEN_LENGTH);
+            var type = (CoapType)(UInt2)((value.Span[0] & MASK_TYPE) >> 4);
+            var tokenLength = (CoapTokenLength)(UInt4)(value.Span[0] & MASK_TOKEN_LENGTH);
             if ((UInt4)tokenLength > 8)
             {
                 throw new MessageFormatErrorException("Token lengths of 9 to 15 are reserved.");
             }
 
-            var codeClass = (CodeClass)(UInt3)((value[1] & MASK_CODE_CLASS) >> 5);
-            var codeDetail = (CodeDetail)(UInt5)(value[1] & MASK_CODE_DETAIL);
+            var codeClass = (CodeClass)(UInt3)((value.Span[1] & MASK_CODE_CLASS) >> 5);
+            var codeDetail = (CodeDetail)(UInt5)(value.Span[1] & MASK_CODE_DETAIL);
             var code = this.registry.Get(codeClass, codeDetail);
             if (code == null)
             {
                 throw new ArgumentNullException(nameof(code), $"Unknown code {codeClass}.{codeDetail}.");
             }
 
-            var messageId = (CoapMessageId)BinaryPrimitives.ReadUInt16BigEndian(value.Slice(2, 2));
+            var messageId = (CoapMessageId)BinaryPrimitives.ReadUInt16BigEndian(value.Span.Slice(2, 2));
 
-            readBytes = 4;
-            return new CoapHeader(version, type, tokenLength, code, messageId);
+            result = new CoapHeader(version, type, tokenLength, code, messageId);
+            return 4;
         }
 
         public bool CanRead(CoapVersion version)
@@ -204,7 +205,7 @@ namespace WorldDirect.CoAP
         bool CanRead(CoapVersion version);
     }
 
-    public class V1OptionsReader : IOptionsReader
+    public class V1OptionsReader : IReader<IReadOnlyCollection<ICoapOption>>
     {
         private const byte MASK_DELTA = 0xF0;
         private const byte MASK_LENGTH = 0x0F;
@@ -217,14 +218,14 @@ namespace WorldDirect.CoAP
             this.factories = factories.ToDictionary(f => f.Number);
         }
 
-        public IReadOnlyCollection<ICoapOption> Read(ReadOnlySpan<byte> value, out int readBytes)
+        public int Read(ReadOnlyMemory<byte> value, out IReadOnlyCollection<ICoapOption> result)
         {
             var options = new List<ICoapOption>();
             var offset = 0;
             var previousNumber = 0;
-            while (this.HasNext(value.Slice(offset)))
+            while (this.HasNext(value.Span.Slice(offset)))
             {
-                var optionData = this.GetOptionData(previousNumber, value.Slice(offset), out var bytesConsumed);
+                var optionData = this.GetOptionData(previousNumber, value.Span.Slice(offset), out var bytesConsumed);
                 previousNumber += optionData.Number;
                 offset += bytesConsumed;
 
@@ -236,9 +237,8 @@ namespace WorldDirect.CoAP
                 options.Add(option);
             }
 
-            // Plus one byte for the payload marker.
-            readBytes = offset;
-            return new ReadOnlyCollection<ICoapOption>(options);
+            result = new ReadOnlyCollection<ICoapOption>(options);
+            return offset;
         }
 
         public bool CanRead(CoapVersion version)
@@ -317,12 +317,6 @@ namespace WorldDirect.CoAP
             // found payload marker.
             if (value[0] == PAYLOAD_MARKER)
             {
-                // only the payload marker is left.
-                if (value.Length == 1)
-                {
-                    throw new MessageFormatErrorException("Found payload marker, but no payload.");
-                }
-
                 // payload is given.
                 return false;
             }
@@ -372,17 +366,6 @@ namespace WorldDirect.CoAP
         public ushort Length { get; }
 
         public ReadOnlySpan<byte> Value { get; }
-
-        public string StringValue
-        {
-            get
-            {
-                var chars = MemoryMarshal.Cast<byte, char>(this.Value);
-                return chars.ToString();
-            }
-        }
-
-        public uint UIntValue => BinaryPrimitives.ReadUInt32BigEndian(this.Value);
     }
 
     public interface IOptionFactory

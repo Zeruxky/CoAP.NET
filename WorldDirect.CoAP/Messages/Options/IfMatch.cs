@@ -18,7 +18,7 @@
 
         public override string ToString()
         {
-            return $"If-Match ({this.Number}): {Encoding.UTF8.GetString(this.RawValue)}";
+            return $"If-Match: {base.ToString()}";
         }
     }
 }

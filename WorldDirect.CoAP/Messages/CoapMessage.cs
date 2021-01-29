@@ -10,11 +10,11 @@ namespace WorldDirect.CoAP.Messages
     public class CoapMessage : IEquatable<CoapMessage>
     {
         public CoapMessage(CoapHeader header)
-            : this(header, CoapToken.EmptyToken, new List<ICoapOption>(), new byte[0])
+            : this(header, CoapToken.EmptyToken, new List<ICoapOption>(), ReadOnlyMemory<byte>.Empty)
         {
         }
 
-        public CoapMessage(CoapHeader header, CoapToken token, IEnumerable<ICoapOption> options, byte[] payload)
+        public CoapMessage(CoapHeader header, CoapToken token, IEnumerable<ICoapOption> options, ReadOnlyMemory<byte> payload)
         {
             this.Header = header;
             this.Token = token;
@@ -28,7 +28,7 @@ namespace WorldDirect.CoAP.Messages
 
         public IReadOnlyList<ICoapOption> Options { get; }
 
-        public byte[] Payload { get; }
+        public ReadOnlyMemory<byte> Payload { get; }
 
         public bool Equals(CoapMessage other)
         {
@@ -42,7 +42,7 @@ namespace WorldDirect.CoAP.Messages
                 return true;
             }
 
-            return this.Header.Equals(other.Header) && this.Token.Equals(other.Token) && this.Options.SequenceEqual(other.Options) && this.Payload.SequenceEqual(other.Payload);
+            return this.Header.Equals(other.Header) && this.Token.Equals(other.Token) && this.Options.SequenceEqual(other.Options) && this.Payload.Span.SequenceEqual(other.Payload.Span);
         }
 
         public override bool Equals(object obj)
