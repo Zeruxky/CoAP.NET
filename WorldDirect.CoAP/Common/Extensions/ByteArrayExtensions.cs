@@ -45,4 +45,31 @@ namespace WorldDirect.CoAP.Common.Extensions
             return result.ToArray();
         }
     }
+
+    public static class SpanExtensions
+    {
+        public static Span<byte> AlignTo8ByteArray(this Span<byte> value)
+        {
+            var buffer = new byte[8];
+            var index = 7;
+            for (int i = value.Length - 1; i >= 0; i--)
+            {
+                buffer[index--] = value[i];
+            }
+
+            return buffer;
+        }
+
+        public static ReadOnlySpan<byte> AlignTo8ByteArray(this ReadOnlySpan<byte> value)
+        {
+            var buffer = new byte[8];
+            var index = 7;
+            for (int i = value.Length - 1; i >= 0; i--)
+            {
+                buffer[index--] = value[i];
+            }
+
+            return buffer;
+        }
+    }
 }

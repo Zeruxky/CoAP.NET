@@ -2,8 +2,9 @@
 
 namespace WorldDirect.CoAP.Specs
 {
+    using WorldDirect.CoAP.Common;
     using FluentAssertions;
-    using WorldDirect.CoAP.Messages;
+    using WorldDirect.CoAP.V1.Messages;
     using Xunit;
 
     /// <summary>

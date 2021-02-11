@@ -5,7 +5,7 @@ namespace WorldDirect.CoAP.Specs
     using System.Linq;
     using System.Threading.Tasks;
     using FluentAssertions;
-    using WorldDirect.CoAP.Messages;
+    using WorldDirect.CoAP.V1.Messages;
     using Xunit;
 
     /// <summary>

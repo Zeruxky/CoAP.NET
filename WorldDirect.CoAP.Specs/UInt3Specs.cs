@@ -3,6 +3,7 @@
 namespace WorldDirect.CoAP.Specs
 {
     using System;
+    using WorldDirect.CoAP.Common;
     using FluentAssertions;
     using Xunit;
 

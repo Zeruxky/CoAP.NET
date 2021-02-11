@@ -2,31 +2,32 @@
 
 namespace WorldDirect.CoAP.Specs
 {
-    using System;
     using System.Collections.Generic;
     using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using WorldDirect.CoAP.Codes.Common;
+    using WorldDirect.CoAP.Codes.ResponseCodes.SuccessfulResponseCodes;
+    using WorldDirect.CoAP.Codes;
+    using WorldDirect.CoAP.Common;
     using FluentAssertions;
-    using WorldDirect.CoAP.Messages;
-    using WorldDirect.CoAP.Messages.Codes;
-    using WorldDirect.CoAP.Messages.Options;
+    using WorldDirect.CoAP.V1;
+    using WorldDirect.CoAP.V1.Messages;
+    using WorldDirect.CoAP.V1.Options;
     using Xunit;
 
     /// <summary>
-    /// Provides all specs that are related to <see cref="CoapMessageV1Deserializer"/>.
+    /// Provides all specs that are related to <see cref="CoapMessageSerializer"/>.
     /// </summary>
     public class CoapMessageV1DeserializerSpecs
     {
-        private readonly CoapMessageV1Deserializer cut;
+        private readonly CoapMessageSerializer cut;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CoapMessageV1DeserializerSpecs"/> class.
         /// </summary>
         public CoapMessageV1DeserializerSpecs()
         {
-            var optionsReader = new V1OptionsReader(new List<IOptionFactory>() {new UnknownFactory(), new UriHostFactory(), new IfMatchFactory(),});
-            this.cut = new CoapMessageV1Deserializer(new V1HeaderReader(new CodeRegistry()), new V1TokenReader(), optionsReader, new PayloadReader());
+            var optionsReader = new OptionsReader(new List<IOptionFactory>() {new UnknownFactory(), new UriHostFactory(), new IfMatchFactory(),});
+            this.cut = new CoapMessageSerializer(new HeaderReader(new CodeRegistry()), new TokenReader(), optionsReader, new PayloadReader());
         }
 
         /// <summary>
@@ -37,12 +38,12 @@ namespace WorldDirect.CoAP.Specs
         {
             var bytes = new byte[]
             {
-                0x54, 0x45, 0xca, 0x3d, 0x8e, 0xef, 0x00, 0x00, 0x25, 0x56, 0x61, 0x6C, 0x75, 0x65, 0xFF, 0x33, 0x33, 0x2e, 0x38,
+                0x54, 0x45, 0xca, 0x3d, 0x00, 0x00, 0xef, 0x8e, 0x15, 0x56, 0x61, 0x6C, 0x75, 0x65, 0xFF, 0x33, 0x33, 0x2e, 0x38,
             };
 
             var payload = new byte[] { 0x33, 0x33, 0x2e, 0x38 };
-            var options = new List<ICoapOption>() { new IfMatch(Encoding.UTF8.GetBytes("Value"))};
-            var header = new CoapHeader(CoapVersion.V1, CoapType.NonConfirmable, new CoapTokenLength((UInt4)4), SuccessfulResponseCode.Content, (CoapMessageId)51773);
+            var options = new List<CoapOption>() { new IfMatch(Encoding.UTF8.GetBytes("Value"))};
+            var header = new CoapHeader(CoapVersion.V1, CoapType.NonConfirmable, new CoapTokenLength((UInt4)4), new Content(), (CoapMessageId)51773);
             var expectedMessage = new CoapMessage(header, new CoapToken(0x0000ef8e, new CoapTokenLength((UInt4)4)), options, payload);
 
             var message = this.cut.Deserialize(bytes);
@@ -57,11 +58,11 @@ namespace WorldDirect.CoAP.Specs
         {
             var bytes = new byte[]
             {
-                0x54, 0x45, 0xca, 0x3d, 0x8e, 0xef, 0x00, 0x00, 0x15, 0x56, 0x61, 0x6C, 0x75, 0x65, 0x05, 0x56, 0x61, 0x6C, 0x75, 0x65,
+                0x54, 0x45, 0xca, 0x3d, 0x00, 0x00, 0xef, 0x8e, 0x15, 0x56, 0x61, 0x6C, 0x75, 0x65, 0x05, 0x56, 0x61, 0x6C, 0x75, 0x65,
             };
 
-            var options = new List<ICoapOption>() { new IfMatch(Encoding.UTF8.GetBytes("Value")), new IfMatch(Encoding.UTF8.GetBytes("Value")), };
-            var header = new CoapHeader(CoapVersion.V1, CoapType.NonConfirmable, new CoapTokenLength((UInt4)4), SuccessfulResponseCode.Content, (CoapMessageId)51773);
+            var options = new List<CoapOption>() { new IfMatch(Encoding.UTF8.GetBytes("Value")), new IfMatch(Encoding.UTF8.GetBytes("Value")), };
+            var header = new CoapHeader(CoapVersion.V1, CoapType.NonConfirmable, new CoapTokenLength((UInt4)4), new Content(), (CoapMessageId)51773);
             var expectedMessage = new CoapMessage(header, new CoapToken(0x0000ef8e, new CoapTokenLength((UInt4)4)), options, new byte[0]);
 
             var message = this.cut.Deserialize(bytes);
