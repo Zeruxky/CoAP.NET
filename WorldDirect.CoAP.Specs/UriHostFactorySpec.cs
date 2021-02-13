@@ -19,7 +19,7 @@ namespace WorldDirect.CoAP.Specs
         public void X()
         {
             var content = Encoding.UTF8.GetBytes("Hällo");
-            var optionData = new OptionData(1, (ushort)content.Length, content);
+            var optionData = new OptionData(0, 1, (ushort)content.Length, content);
             var option = this.cut.Create(optionData);
         }
     }

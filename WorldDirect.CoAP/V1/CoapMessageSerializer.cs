@@ -7,6 +7,7 @@ namespace WorldDirect.CoAP.V1
     using System.Buffers.Binary;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Net.Sockets;
     using System.Runtime.InteropServices;
     using WorldDirect.CoAP.Common;
     using WorldDirect.CoAP.V1.Messages;
@@ -17,7 +18,6 @@ namespace WorldDirect.CoAP.V1
     /// </summary>
     public sealed class CoapMessageSerializer : IMessageSerializer
     {
-        private static readonly IMemoryOwner<byte> MemoryOwner = MemoryPool<byte>.Shared.Rent(4);
         private readonly IReader<IReadOnlyCollection<CoapOption>> optionReader;
         private readonly IReader<ReadOnlyMemory<byte>> payloadReader;
         private readonly IReader<CoapHeader> headerReader;
@@ -44,39 +44,10 @@ namespace WorldDirect.CoAP.V1
             return new CoapMessage(header, token, options, payload);
         }
 
-        public ReadOnlySpan<byte> Serialize(CoapMessage message)
+        public bool CanDeserialize(UdpReceiveResult result)
         {
-            throw new NotImplementedException();
-        }
-
-        public bool CanDeserialize(CoapVersion version)
-        {
-            return version.Equals(CoapVersion.V1);
-        }
-    }
-
-    public interface IWriter<in TIn>
-    {
-        int Write(TIn value, Span<byte> buffer);
-    }
-
-    public class CoapHeaderWriter : IWriter<CoapHeader>
-    {
-        public int Write(CoapHeader header, Span<byte> buffer)
-        {
-            buffer[0] = (byte)(((UInt2)header.Version << 6) | ((UInt2)header.Type << 4) | ((UInt4)header.Length));
-            buffer[1] = (byte)(((UInt3)header.Code.Class << 5) | ((UInt5)header.Code.Detail));
-            BinaryPrimitives.WriteUInt16BigEndian(buffer.Slice(2, 2), header.Id);
-            return 4;
-        }
-    }
-
-    public class CoapTokenWriter : IWriter<CoapToken>
-    {
-        public int Write(CoapToken value, Span<byte> buffer)
-        {
-            BinaryPrimitives.WriteUInt64BigEndian(buffer, value);
-            return (UInt4)value.Length;
+            this.headerReader.Read(result.Buffer, out var header);
+            return header.Version.Equals(CoapVersion.V1);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace WorldDirect.CoAP.V1
             while (OptionsReader.HasNext(value.Span.Slice(offset)))
             {
                 var optionData = OptionsReader.GetOptionData(previousNumber, value.Span.Slice(offset), out var bytesConsumed);
-                previousNumber += optionData.Number;
+                previousNumber = optionData.Number;
                 offset += bytesConsumed;
 
                 var factory = this.factories.ContainsKey(optionData.Number)
@@ -52,11 +52,10 @@ namespace WorldDirect.CoAP.V1
             var delta = OptionsReader.ReadDelta(src);
             var length = OptionsReader.ReadLength(src, delta.Size);
 
-            var number = previousNumber + delta.Value;
             var valueOffset = 1 + delta.Size + length.Size;
 
             bytesConsumed = valueOffset + length.Value;
-            return new OptionData((ushort)number, length.Value, src.Slice(valueOffset, length.Value));
+            return new OptionData((ushort)previousNumber, delta.Value, length.Value, src.Slice(valueOffset, length.Value));
         }
 
         private static OptionsLength ReadLength(ReadOnlySpan<byte> value, byte readDeltaBytes)

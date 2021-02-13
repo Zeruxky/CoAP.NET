@@ -6,9 +6,10 @@ namespace WorldDirect.CoAP
 
     public ref struct OptionData
     {
-        public OptionData(ushort number, ushort length, ReadOnlySpan<byte> value)
+
+        public OptionData(ushort offset, ushort delta, ushort length, ReadOnlySpan<byte> value)
         {
-            this.Number = number;
+            this.Number = (ushort)(offset + delta);
             this.Length = length;
             this.Value = value;
         }
