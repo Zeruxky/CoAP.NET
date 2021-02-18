@@ -4,6 +4,7 @@ namespace WorldDirect.CoAP.Codes
 {
     using System;
 
+
     public abstract class CoapCode : IEquatable<CoapCode>
     {
         protected CoapCode(CodeClass @class, CodeDetail detail)

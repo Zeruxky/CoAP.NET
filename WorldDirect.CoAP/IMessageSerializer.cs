@@ -47,23 +47,15 @@ namespace WorldDirect.CoAP
         {
             this.serializers = serializers;
             this.logger = logger;
-            this.socket = new UdpClient(new IPEndPoint(IPAddress.Loopback, 5683));
+            this.LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 5683);
+            this.socket = new UdpClient(this.LocalEndPoint);
         }
 
-        public async Task ReceiveAsync(CancellationToken ct = default)
+        public IPEndPoint LocalEndPoint { get; }
+
+        public Task<UdpReceiveResult> ReceiveAsync(CancellationToken ct = default)
         {
-            this.logger.LogInformation($"Server started at endpoint {this.socket.Client.LocalEndPoint}.");
-            var result = await this.socket.ReceiveAsync().ConfigureAwait(false);
-            try
-            {
-                this.logger.LogTrace($"Received {result.Buffer.Length} bytes from {result.RemoteEndPoint}");
-                var serializer = this.serializers.Single(s => s.CanDeserialize(result));
-                var message = serializer.Deserialize(result.Buffer);
-            }
-            catch (Exception e)
-            {
-                this.logger.LogError(e, "Error at receiving message.");
-            }
+            return this.socket.ReceiveAsync();
         }
     }
 }

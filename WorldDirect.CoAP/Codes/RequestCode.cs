@@ -4,9 +4,9 @@ namespace WorldDirect.CoAP.Codes
 {
     using WorldDirect.CoAP.Common;
 
-    public class RequestCode : CoapCode
+    public abstract class RequestCode : CoapCode
     {
-        public RequestCode(CodeDetail detail)
+        protected RequestCode(CodeDetail detail)
             : base(new CodeClass((UInt3)0), detail)
         {
         }

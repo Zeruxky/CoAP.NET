@@ -4,9 +4,9 @@ namespace WorldDirect.CoAP.Codes.ResponseCodes.SuccessfulResponseCodes
 {
     using WorldDirect.CoAP.Common;
 
-    public class SuccessfulResponseCode : ResponseCode
+    public abstract class SuccessfulResponseCode : ResponseCode
     {
-        public SuccessfulResponseCode(CodeDetail detail)
+        protected SuccessfulResponseCode(CodeDetail detail)
             : base(new CodeClass((UInt3)2), detail)
         {
         }

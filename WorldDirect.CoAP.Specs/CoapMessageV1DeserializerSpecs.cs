@@ -27,7 +27,7 @@ namespace WorldDirect.CoAP.Specs
         public CoapMessageV1DeserializerSpecs()
         {
             var optionsReader = new OptionsReader(new List<IOptionFactory>() {new UnknownFactory(), new UriHostFactory(), new IfMatchFactory(),});
-            this.cut = new CoapMessageSerializer(new HeaderReader(new CodeRegistry()), new TokenReader(), optionsReader, new PayloadReader());
+            //this.cut = new CoapMessageSerializer(new HeaderReader(new CodeRegistry()), new TokenReader(), optionsReader, new PayloadReader());
         }
 
         /// <summary>

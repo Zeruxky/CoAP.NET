@@ -40,10 +40,6 @@ namespace WorldDirect.CoAP.V1
             var codeClass = (CodeClass)(UInt3)((value.Span[1] & MASK_CODE_CLASS) >> 5);
             var codeDetail = (CodeDetail)(UInt5)(value.Span[1] & MASK_CODE_DETAIL);
             var code = this.registry.Get(codeClass, codeDetail);
-            if (code == null)
-            {
-                throw new ArgumentNullException(nameof(code), $"Unknown code {codeClass}.{codeDetail}.");
-            }
 
             var messageId = (CoapMessageId)BinaryPrimitives.ReadUInt16BigEndian(value.Span.Slice(2, 2));
 

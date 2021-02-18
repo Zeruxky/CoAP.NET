@@ -2,14 +2,19 @@
 
 namespace Client
 {
+    using System.Threading.Tasks;
     using CoAP;
 
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var client = new CoapClient(new Uri("coap://127.0.0.1:5683/a/b/c"));
-            client.Get();
+            while (true)
+            {
+                client.Get();
+                await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+            }
         }
     }
 }

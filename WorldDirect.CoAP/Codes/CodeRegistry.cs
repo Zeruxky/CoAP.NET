@@ -17,23 +17,6 @@ namespace WorldDirect.CoAP.Codes
         /// <summary>
         /// Initializes a new instance of the <see cref="CodeRegistry"/> class.
         /// </summary>
-        /// <remarks>
-        /// The default <see cref="CoapCode"/>s are the specifies ones by RFC 7252.
-        /// </remarks>
-        public CodeRegistry()
-        {
-            this.Elements = new List<CoapCode>()
-            {
-                new EmptyCode(),
-            };
-
-            this.Elements.AddRange(new MethodCodeRegistry());
-            this.Elements.AddRange(new ResponseCodeRegistry());
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CodeRegistry"/> class.
-        /// </summary>
         /// <param name="codes">The set of <see cref="CoapCode"/>s that should represent the new created <see cref="CodeRegistry"/>.</param>
         /// <remarks>
         /// This will overwrite the default <see cref="CoapCode"/>s specifies by RFC 7252.
@@ -41,13 +24,6 @@ namespace WorldDirect.CoAP.Codes
         public CodeRegistry(IEnumerable<CoapCode> codes)
             : base(codes)
         {
-        }
-
-        public CodeRegistry(MethodCodeRegistry methodCodes, ResponseCodeRegistry responseCodes)
-        {
-            this.Elements.Add(new EmptyCode());
-            this.Elements.AddRange(methodCodes);
-            this.Elements.AddRange(responseCodes);
         }
 
         /// <summary>
@@ -61,7 +37,7 @@ namespace WorldDirect.CoAP.Codes
         {
             if (!this.Exists(@class, detail))
             {
-                throw new ArgumentException($"Unknown code {@class}.{detail}.");
+                return new UnknownCode(@class, detail);
             }
 
             var code = this.Elements.Single(c => c.Class.Equals(@class) && c.Detail.Equals(detail));
@@ -71,6 +47,14 @@ namespace WorldDirect.CoAP.Codes
         private bool Exists(CodeClass @class, CodeDetail detail)
         {
             return this.Elements.Any(c => c.Class.Equals(@class) && c.Detail.Equals(detail));
+        }
+    }
+
+    public class UnknownCode : CoapCode
+    {
+        public UnknownCode(CodeClass @class, CodeDetail detail)
+            : base(@class, detail)
+        {
         }
     }
 }

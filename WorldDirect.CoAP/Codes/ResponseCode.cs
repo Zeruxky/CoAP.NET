@@ -2,7 +2,7 @@
 
 namespace WorldDirect.CoAP.Codes
 {
-    public class ResponseCode : CoapCode
+    public abstract class ResponseCode : CoapCode
     {
         public ResponseCode(CodeClass @class, CodeDetail detail)
             : base(@class, detail)
