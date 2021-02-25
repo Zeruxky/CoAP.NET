@@ -9,14 +9,4 @@
         {
         }
     }
-
-    public class IfNoneMatchFactory : IOptionFactory
-    {
-        public CoapOption Create(OptionData src)
-        {
-            return new IfNoneMatch();
-        }
-
-        public int Number => IfNoneMatch.NUMBER;
-    }
 }

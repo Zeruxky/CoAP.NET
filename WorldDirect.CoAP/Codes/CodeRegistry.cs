@@ -49,12 +49,4 @@ namespace WorldDirect.CoAP.Codes
             return this.Elements.Any(c => c.Class.Equals(@class) && c.Detail.Equals(detail));
         }
     }
-
-    public class UnknownCode : CoapCode
-    {
-        public UnknownCode(CodeClass @class, CodeDetail detail)
-            : base(@class, detail)
-        {
-        }
-    }
 }

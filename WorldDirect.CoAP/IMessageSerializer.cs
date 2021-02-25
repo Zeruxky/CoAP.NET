@@ -4,15 +4,9 @@ namespace WorldDirect.CoAP
 {
     using System;
     using System.Buffers;
-    using System.Collections.Generic;
     using System.Linq;
-    using System.Net;
     using System.Net.Sockets;
-    using System.Threading;
-    using System.Threading.Tasks;
     using Codes;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
     using V1;
     using WorldDirect.CoAP.V1.Messages;
 
@@ -36,34 +30,5 @@ namespace WorldDirect.CoAP
         ///   <c>true</c> if this instance can deserialize the <see cref="CoapMessage"/> with that <see cref="CoapVersion"/>; otherwise, <c>false</c>.
         /// </returns>
         bool CanDeserialize(UdpReceiveResult value);
-    }
-
-    public class CoapServerOptions
-    {
-        public int Port { get; set; } = 5683;
-
-        public IPAddress Address { get; set; } = IPAddress.Loopback;
-    }
-
-    public class CoapServer
-    {
-        private readonly IEnumerable<IMessageSerializer> serializers;
-        private readonly ILogger<CoapServer> logger;
-        private readonly UdpClient socket;
-
-        public CoapServer(IEnumerable<IMessageSerializer> serializers, ILogger<CoapServer> logger, IOptionsMonitor<CoapServerOptions> options)
-        {
-            this.serializers = serializers;
-            this.logger = logger;
-            this.LocalEndPoint = new IPEndPoint(options.CurrentValue.Address, options.CurrentValue.Port);
-            this.socket = new UdpClient(this.LocalEndPoint);
-        }
-
-        public IPEndPoint LocalEndPoint { get; }
-
-        public Task<UdpReceiveResult> ReceiveAsync(CancellationToken ct = default)
-        {
-            return this.socket.ReceiveAsync();
-        }
     }
 }
