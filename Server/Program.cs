@@ -18,6 +18,7 @@ namespace Server
     using WorldDirect.CoAP.Codes;
     using WorldDirect.CoAP.V1;
     using WorldDirect.CoAP.V1.Messages;
+    using WorldDirect.CoAP.V1.Options;
 
     public class X
     {
@@ -164,22 +165,22 @@ namespace Server
             });
         }
 
-        public static IServiceCollection AddReaders(this IServiceCollection services, Assembly assembly)
+        public static IServiceCollection AddReaders(this IServiceCollection services, params Assembly[] assemblies)
         {
             return services.Scan(scan =>
             {
-                scan.FromAssemblies(assembly)
+                scan.FromAssemblies(assemblies)
                     .AddClasses(c => c.AssignableTo(typeof(IReader<>)))
                     .AsImplementedInterfaces()
                     .WithTransientLifetime();
             });
         }
 
-        public static IServiceCollection AddCoapCodes(this IServiceCollection services, Assembly assembly)
+        public static IServiceCollection AddCoapCodes(this IServiceCollection services, params Assembly[] assemblies)
         {
             return services.Scan(scan =>
             {
-                scan.FromAssemblies(assembly)
+                scan.FromAssemblies(assemblies)
                     .AddClasses(c => c.AssignableTo<CoapCode>())
                     .As<CoapCode>()
                     .WithTransientLifetime();
@@ -197,13 +198,35 @@ namespace Server
             });
         }
 
-        public static IServiceCollection AddOptionFactories(this IServiceCollection services, Assembly assembly)
+        public static IServiceCollection AddOptionFactories(this IServiceCollection services, params Assembly[] assemblies)
         {
             return services.Scan(scan =>
             {
-                scan.FromAssemblies(assembly)
+                scan.FromAssemblies(assemblies)
                     .AddClasses(c => c.AssignableTo<IOptionFactory>())
                     .AsImplementedInterfaces()
+                    .WithTransientLifetime();
+            });
+        }
+
+        public static IServiceCollection AddContentFormats(this IServiceCollection services)
+        {
+            return services.Scan(scan =>
+            {
+                scan.FromApplicationDependencies()
+                    .AddClasses(c => c.AssignableTo<ContentFormat>())
+                    .As<ContentFormat>()
+                    .WithTransientLifetime();
+            });
+        }
+
+        public static IServiceCollection AddContentFormats(this IServiceCollection services, params Assembly[] assemblies)
+        {
+            return services.Scan(scan =>
+            {
+                scan.FromAssemblies(assemblies)
+                    .AddClasses(c => c.AssignableTo<ContentFormat>())
+                    .As<ContentFormat>()
                     .WithTransientLifetime();
             });
         }
@@ -220,6 +243,8 @@ namespace Server
             services.AddCoapCodes();
             services.AddOptionFactories();
             services.AddTransient<CodeRegistry>();
+            services.AddContentFormats();
+            services.AddTransient<ContentFormatRegistry>();
             return services;
         }
     }

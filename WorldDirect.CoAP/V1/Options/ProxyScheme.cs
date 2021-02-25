@@ -4,20 +4,21 @@
 
     public class ProxyScheme : StringOptionFormat
     {
+        public const ushort NUMBER = 39;
+
         public ProxyScheme(string value)
-            : base(value)
+            : base(NUMBER, value, 1, 255)
         {
-            if (value.Length < 1 || value.Length > 255)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value), value, "Value for Proxy-Scheme can only be in range of 1 - 255 characters.");
-            }
+        }
+    }
+
+    public class ProxySchemeFactory : IOptionFactory
+    {
+        public CoapOption Create(OptionData src)
+        {
+            return new ProxyScheme(src.StringValue);
         }
 
-        public override ushort Number => 39;
-
-        public override string ToString()
-        {
-            return $"Proxy-Scheme ({this.Number}): {this.Value}";
-        }
+        public int Number => ProxyScheme.NUMBER;
     }
 }

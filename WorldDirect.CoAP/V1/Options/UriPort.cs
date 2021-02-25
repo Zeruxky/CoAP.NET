@@ -6,20 +6,21 @@ namespace WorldDirect.CoAP.V1.Options
 
     public class UriPort : UIntOptionFormat
     {
+        public const ushort NUMBER = 7;
+
         public UriPort(uint value)
-            : base(value)
+            : base(NUMBER, value, 0, 2)
         {
-            if (value > ushort.MaxValue)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value), value, $"Value for Uri-Host option can only be in range of {ushort.MinValue} - {ushort.MaxValue}.");
-            }
+        }
+    }
+
+    public class UriPortFactory : IOptionFactory
+    {
+        public CoapOption Create(OptionData src)
+        {
+            return new UriPort(src.UIntValue);
         }
 
-        public override ushort Number => 7;
-
-        public override string ToString()
-        {
-            return $"Uri-Port ({this.Number}): {this.Value}";
-        }
+        public int Number => UriPort.NUMBER;
     }
 }

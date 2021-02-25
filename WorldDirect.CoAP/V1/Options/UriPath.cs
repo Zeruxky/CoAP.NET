@@ -5,16 +5,12 @@
 
     public class UriPath : StringOptionFormat
     {
-        public UriPath(string value)
-            : base(value)
-        {
-            if (value.Length > 255)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value), value, "Value for Uri-Path can only be in range of 0 - 255 characters.");
-            }
-        }
+        public const ushort NUMBER = 11;
 
-        public override ushort Number => 11;
+        public UriPath(string value)
+            : base(NUMBER, value, 0, 255)
+        {
+        }
     }
 
     public class UriPathFactory : IOptionFactory
@@ -22,10 +18,10 @@
         /// <inheritdoc />
         public CoapOption Create(OptionData src)
         {
-            return new UriPath(Encoding.UTF8.GetString(src.Value.ToArray()));
+            return new UriPath(src.StringValue);
         }
 
         /// <inheritdoc />
-        public int Number => 11;
+        public int Number => UriPath.NUMBER;
     }
 }

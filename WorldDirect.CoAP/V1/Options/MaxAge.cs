@@ -2,16 +2,21 @@
 {
     public class MaxAge : UIntOptionFormat
     {
+        public const ushort NUMBER = 14;
+
         public MaxAge(uint value)
-            : base(value)
+            : base(NUMBER, value, 0, 4)
         {
         }
+    }
 
-        public override ushort Number => 14;
-
-        public override string ToString()
+    public class MaxAgeFactory : IOptionFactory
+    {
+        public CoapOption Create(OptionData src)
         {
-            return $"Max-Age ({this.Number}): {this.Value}";
+            return new MaxAge(src.UIntValue);
         }
+
+        public int Number => MaxAge.NUMBER;
     }
 }

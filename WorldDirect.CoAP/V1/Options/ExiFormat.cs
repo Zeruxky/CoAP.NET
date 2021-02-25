@@ -1,9 +1,13 @@
 ﻿namespace WorldDirect.CoAP.V1.Options
 {
+    using System.Text;
+
     public sealed class ExiFormat : ContentFormat
     {
+        public const uint NUMBER = 47;
+
         public ExiFormat()
-            : base(47, "application/exi")
+            : base(NUMBER, CoapMediaTypeNames.Application.Exi)
         {
         }
     }

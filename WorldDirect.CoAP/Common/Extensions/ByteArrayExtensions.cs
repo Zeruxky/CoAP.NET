@@ -3,70 +3,131 @@
 namespace WorldDirect.CoAP.Common.Extensions
 {
     using System;
+    using System.Buffers;
+    using System.Buffers.Binary;
     using System.Linq;
+    using System.Runtime.InteropServices;
+    using System.Text;
 
     public static class ByteArrayExtensions
     {
-        public static byte[] Slice(this byte[] value, int start)
+        public static string ToString(this byte[] value, char separator)
         {
-            return value.Slice(start, value.Length - start);
+            var builder = new StringBuilder();
+            foreach (var item in value)
+            {
+                builder.Append(item.ToString("X"));
+                builder.Append(separator);
+            }
+
+            return builder.ToString();
         }
 
-        public static byte[] Slice(this byte[] value, int start, int length)
+        /// <summary>
+        /// Aligns the specified <see cref="ReadOnlySpan{T}"/> to the specified <paramref name="size"/>.
+        /// </summary>
+        /// <param name="value">The <see cref="ReadOnlySpan{T}"/> that should be aligned to the specified <paramref name="size"/>.</param>
+        /// <param name="size">The size of the resulting <see cref="ReadOnlySpan{T}"/>.</param>
+        /// <returns>A <see cref="ReadOnlySpan{T}"/> that is aligned to the specified <paramref name="size"/> and holds the content of the <see cref="value"/>.</returns>
+        /// <remarks>
+        /// 'Align' means that a new byte array of the specified <paramref name="size"/> will be created and filled with zeros (0) at default.
+        /// In the next step, the newly created byte array will be filled with the content of the specified <paramref name="value"/>.
+        /// </remarks>
+        public static byte[] AlignByteArray(this byte[] value, int size)
         {
-            if (start < 0 || start > value.Length)
-            {
-                throw new ArgumentOutOfRangeException(nameof(start), value, $"Start index must be in range of 0 - {value.Length}.");
-            }
+            // Initialize buffer with the specified size and set every item to zero (0) as default.
+            var buffer = new byte[size];
 
-            if (length < 0)
+            // Fill the content of the Span into the buffer.
+            int index = 0;
+            foreach (var item in value)
             {
-                throw new ArgumentOutOfRangeException(nameof(length), length, "Length can not be negative.");
-            }
-
-            if (start + length > value.Length)
-            {
-                throw new InvalidOperationException("Can not read beyond the given byte array.");
-            }
-
-            var buffer = new byte[length];
-            for (int i = 0; i < length; i++)
-            {
-                buffer[i] = value[start + i];
+                buffer[index++] = item;
             }
 
             return buffer;
         }
 
-        public static byte[] Append(this byte[] array, byte value)
+        public static byte[] RemoveZeros(this byte[] value)
         {
-            var result = array.ToList();
-            result.Add(value);
-            return result.ToArray();
+            var x = value.Where(v => !v.Equals(0)).ToArray();
+            return x;
         }
     }
 
     public static class SpanExtensions
     {
-        public static Span<byte> AlignTo8ByteArray(this Span<byte> value)
+        /// <summary>
+        /// Aligns the specified <see cref="ReadOnlySpan{T}"/> to the specified <paramref name="size"/>.
+        /// </summary>
+        /// <param name="value">The <see cref="ReadOnlySpan{T}"/> that should be aligned to the specified <paramref name="size"/>.</param>
+        /// <param name="size">The size of the resulting <see cref="ReadOnlySpan{T}"/>.</param>
+        /// <returns>A <see cref="ReadOnlySpan{T}"/> that is aligned to the specified <paramref name="size"/> and holds the content of the <see cref="value"/>.</returns>
+        /// <remarks>
+        /// 'Align' means that a new byte array of the specified <paramref name="size"/> will be created and filled with zeros (0) at default.
+        /// In the next step, the newly created byte array will be filled with the content of the specified <paramref name="value"/>.
+        /// </remarks>
+        public static ReadOnlySpan<byte> AlignByteArray(this ReadOnlySpan<byte> value, int size)
         {
-            var buffer = new byte[8];
-            var index = 7;
-            for (int i = value.Length - 1; i >= 0; i--)
+            // Initialize buffer with the specified size and set every item to zero (0) as default.
+            var buffer = new byte[size];
+
+            // Fill the content of the Span into the buffer.
+            int index = 0;
+            foreach (var item in value)
             {
-                buffer[index--] = value[i];
+                buffer[index++] = item;
             }
 
             return buffer;
         }
 
-        public static ReadOnlySpan<byte> AlignTo8ByteArray(this ReadOnlySpan<byte> value)
+        public static ReadOnlySpan<byte> Reverse(this ReadOnlySpan<byte> value)
         {
-            var buffer = new byte[8];
-            var index = 7;
-            for (int i = value.Length - 1; i >= 0; i--)
+            var index = value.Length;
+            var buffer = new byte[value.Length];
+            foreach (var item in value)
             {
-                buffer[index--] = value[i];
+                buffer[--index] = item;
+            }
+
+            return buffer;
+        }
+
+        public static Span<byte> Reverse(this Span<byte> value)
+        {
+            var index = value.Length;
+            var buffer = new byte[value.Length];
+            foreach (var item in value)
+            {
+                buffer[--index] = item;
+            }
+
+            return buffer;
+        }
+    }
+
+    public static class MemoryExtensions
+    {
+        public static Memory<byte> Reverse(this Memory<byte> value)
+        {
+            var index = value.Length;
+            var buffer = new byte[value.Length];
+            foreach (var item in value.Span)
+            {
+                buffer[--index] = item;
+            }
+
+            return buffer;
+        }
+
+        public static ReadOnlyMemory<byte> Reverse(this ReadOnlyMemory<byte> value)
+        {
+            var index = value.Length;
+            var buffer = new byte[value.Length];
+            foreach (var item in value.Span)
+            {
+                buffer[--index] = item;
             }
 
             return buffer;

@@ -7,6 +7,7 @@ namespace WorldDirect.CoAP.V1
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using Codes.ResponseCodes.ServerResponseCodes;
     using WorldDirect.CoAP.Codes.Common;
     using WorldDirect.CoAP.Common;
     using WorldDirect.CoAP.V1.Options;

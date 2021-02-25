@@ -1,23 +1,25 @@
 ﻿namespace WorldDirect.CoAP.V1.Options
 {
     using System;
+    using System.Collections.Specialized;
 
     public class LocationPath : StringOptionFormat
     {
+        public const ushort NUMBER = 8;
+
         public LocationPath(string value)
-            : base(value)
+            : base(NUMBER, value, 0, 255)
         {
-            if (value.Length > 255)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value), value, "Value for Location-Path can only be in range of 0 - 255 characters.");
-            }
+        }
+    }
+
+    public class LocationPathFactory : IOptionFactory
+    {
+        public CoapOption Create(OptionData src)
+        {
+            return new LocationPath(src.StringValue);
         }
 
-        public override ushort Number => 8;
-
-        public override string ToString()
-        {
-            return $"Location-Path ({this.Number}): {this.Value}";
-        }
+        public int Number => LocationPath.NUMBER;
     }
 }

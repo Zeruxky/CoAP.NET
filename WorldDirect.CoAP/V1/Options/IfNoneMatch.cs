@@ -2,11 +2,21 @@
 {
     public class IfNoneMatch : EmptyOptionFormat
     {
-        public override ushort Number => 5;
+        public const ushort NUMBER = 5;
 
-        public override string ToString()
+        public IfNoneMatch()
+            : base(NUMBER)
         {
-            return $"If-None-Match ({this.Number})";
         }
+    }
+
+    public class IfNoneMatchFactory : IOptionFactory
+    {
+        public CoapOption Create(OptionData src)
+        {
+            return new IfNoneMatch();
+        }
+
+        public int Number => IfNoneMatch.NUMBER;
     }
 }

@@ -4,15 +4,15 @@ namespace WorldDirect.CoAP.V1
 {
     using System;
     using System.Buffers.Binary;
-    using Common.Extensions;
     using WorldDirect.CoAP.Common;
+    using WorldDirect.CoAP.Common.Extensions;
     using WorldDirect.CoAP.V1.Messages;
 
     public class TokenReader : IReader<CoapToken>
     {
         public int Read(ReadOnlyMemory<byte> value, out CoapToken result)
         {
-            var buffer = value.Span.AlignTo8ByteArray();
+            var buffer = value.Span.AlignByteArray(8);
             var tokenValue = BinaryPrimitives.ReadUInt64BigEndian(buffer);
             result = new CoapToken(tokenValue, (CoapTokenLength)(UInt4)value.Length);
             return value.Length;

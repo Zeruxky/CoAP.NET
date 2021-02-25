@@ -3,6 +3,7 @@
 namespace WorldDirect.CoAP.Specs
 {
     using System.Text;
+    using V1.Options;
     using WorldDirect.CoAP.V1;
     using Xunit;
 

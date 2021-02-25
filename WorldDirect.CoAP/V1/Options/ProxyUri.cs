@@ -4,20 +4,21 @@
 
     public class ProxyUri : StringOptionFormat
     {
+        public const ushort NUMBER = 35;
+
         public ProxyUri(string value)
-            : base(value)
+            : base(NUMBER, value, 1, 1034)
         {
-            if (value.Length < 1 || value.Length > 1034)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value), value, "Value for Proxy-Uri can only be in range of 1 - 1034 characters.");
-            }
+        }
+    }
+
+    public class ProxyUriFactory : IOptionFactory
+    {
+        public CoapOption Create(OptionData src)
+        {
+            return new ProxyUri(src.StringValue);
         }
 
-        public override ushort Number => 35;
-
-        public override string ToString()
-        {
-            return $"Proxy-Uri ({this.Number}): {this.Value}";
-        }
+        public int Number => ProxyUri.NUMBER;
     }
 }

@@ -4,20 +4,21 @@
 
     public class UriQuery : StringOptionFormat
     {
+        public const ushort NUMBER = 15;
+
         public UriQuery(string value)
-            : base(value)
+            : base(NUMBER, value, 0, 255)
         {
-            if (value.Length > 255)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value), value, "Value for Uri-Query can only be in range of 0 - 255 characters.");
-            }
+        }
+    }
+
+    public class UriQueryFactory : IOptionFactory
+    {
+        public CoapOption Create(OptionData src)
+        {
+            return new UriQuery(src.StringValue);
         }
 
-        public override ushort Number => 15;
-
-        public override string ToString()
-        {
-            return $"Uri-Query ({this.Number}): {this.Value}";
-        }
+        public int Number => UriQuery.NUMBER;
     }
 }

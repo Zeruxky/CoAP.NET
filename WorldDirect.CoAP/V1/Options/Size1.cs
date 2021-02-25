@@ -2,16 +2,21 @@
 {
     public class Size1 : UIntOptionFormat
     {
+        public const ushort NUMBER = 60;
+
         public Size1(uint value)
-            : base(value)
+            : base(NUMBER, value, 0, 4)
         {
         }
+    }
 
-        public override ushort Number => 60;
-
-        public override string ToString()
+    public class Size1Factory : IOptionFactory
+    {
+        public CoapOption Create(OptionData src)
         {
-            return $"Size1 ({this.Number}): {this.Value}";
+            return new Size1(src.UIntValue);
         }
+
+        public int Number => Size1.NUMBER;
     }
 }

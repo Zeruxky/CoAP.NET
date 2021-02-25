@@ -14,7 +14,7 @@ namespace WorldDirect.CoAP.V1.Options
         /// Initializes a new instance of the <see cref="OctetStreamFormat"/> class.
         /// </summary>
         public OctetStreamFormat()
-            : base(42, "application/octet-stream")
+            : base(42, CoapMediaTypeNames.Application.OctetStream)
         {
         }
     }

@@ -12,6 +12,7 @@ namespace WorldDirect.CoAP
     using System.Threading.Tasks;
     using Codes;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
     using V1;
     using WorldDirect.CoAP.V1.Messages;
 
@@ -37,17 +38,24 @@ namespace WorldDirect.CoAP
         bool CanDeserialize(UdpReceiveResult value);
     }
 
+    public class CoapServerOptions
+    {
+        public int Port { get; set; } = 5683;
+
+        public IPAddress Address { get; set; } = IPAddress.Loopback;
+    }
+
     public class CoapServer
     {
         private readonly IEnumerable<IMessageSerializer> serializers;
         private readonly ILogger<CoapServer> logger;
         private readonly UdpClient socket;
 
-        public CoapServer(IEnumerable<IMessageSerializer> serializers, ILogger<CoapServer> logger)
+        public CoapServer(IEnumerable<IMessageSerializer> serializers, ILogger<CoapServer> logger, IOptionsMonitor<CoapServerOptions> options)
         {
             this.serializers = serializers;
             this.logger = logger;
-            this.LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 5683);
+            this.LocalEndPoint = new IPEndPoint(options.CurrentValue.Address, options.CurrentValue.Port);
             this.socket = new UdpClient(this.LocalEndPoint);
         }
 

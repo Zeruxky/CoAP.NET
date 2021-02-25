@@ -1,6 +1,7 @@
 ﻿namespace WorldDirect.CoAP.V1
 {
     using System;
+    using Common.Extensions;
 
     public class PayloadReader : IReader<ReadOnlyMemory<byte>>
     {
@@ -20,7 +21,7 @@
                 throw new MessageFormatErrorException("Payload marker found but no payload.");
             }
 
-            result = value.Slice(1);
+            result = BitConverter.IsLittleEndian ? value.Slice(1).Reverse() : value.Slice(1);
             return value.Length;
         }
     }

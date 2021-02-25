@@ -3,7 +3,7 @@
     public sealed class XmlFormat : ContentFormat
     {
         public XmlFormat()
-            : base(41, "application/xml")
+            : base(41, CoapMediaTypeNames.Application.Xml)
         {
         }
     }

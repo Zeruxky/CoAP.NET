@@ -8,9 +8,9 @@ namespace WorldDirect.CoAP.V1
     {
         public CoapOption Create(OptionData src)
         {
-            return new IfMatch(src.Value.ToArray());
+            return new IfMatch(src.Value);
         }
 
-        public int Number => 1;
+        public int Number => IfMatch.NUMBER;
     }
 }

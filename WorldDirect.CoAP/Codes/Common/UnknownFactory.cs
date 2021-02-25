@@ -8,7 +8,7 @@ namespace WorldDirect.CoAP.Codes.Common
     {
         public CoapOption Create(OptionData src)
         {
-            return new UnknownOption(src.Number, src.Value.ToArray());
+            return new UnknownOption(src.Number, src.Value);
         }
 
         public int Number => -1;

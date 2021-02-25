@@ -6,20 +6,21 @@ namespace WorldDirect.CoAP.V1.Options
 
     public class Accept : UIntOptionFormat
     {
+        public const ushort Id = 17;
+
         public Accept(uint value)
-            : base(value)
+            : base(Id, value, 0, 2)
         {
-            if (value > ushort.MaxValue)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value), value, $"Value for Accept can only be in range of {ushort.MinValue} - {ushort.MaxValue}.");
-            }
+        }
+    }
+
+    public class AcceptFactory : IOptionFactory
+    {
+        public CoapOption Create(OptionData src)
+        {
+            return new Accept(src.UIntValue);
         }
 
-        public override ushort Number => 17;
-
-        public override string ToString()
-        {
-            return $"Accept ({this.Number}): {this.Value}";
-        }
+        public int Number => Accept.Id;
     }
 }

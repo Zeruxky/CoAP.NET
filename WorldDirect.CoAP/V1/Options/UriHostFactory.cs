@@ -2,6 +2,7 @@
 
 namespace WorldDirect.CoAP.V1
 {
+    using System;
     using System.Text;
     using WorldDirect.CoAP.V1.Options;
 
@@ -9,10 +10,9 @@ namespace WorldDirect.CoAP.V1
     {
         public CoapOption Create(OptionData src)
         {
-            var stringValue = Encoding.UTF8.GetString(src.Value.ToArray());
-            return new UriHost(stringValue);
+            return new UriHost(src.StringValue);
         }
 
-        public int Number => 3;
+        public int Number => UriHost.NUMBER;
     }
 }

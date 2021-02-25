@@ -15,15 +15,30 @@
         /// If the system's computer architecture is in little endian order, the <paramref name="value"/>
         /// will be reversed, because the <paramref name="value"/> is expected to be in network byte order (big endian order).
         /// </remarks>
-        protected CoapOption(byte[] value)
+        protected CoapOption(ushort number, byte[] value,  uint lowerLimit, uint upperLimit)
         {
-            // Check if the array must be reversed to be little endian.
-            if (BitConverter.IsLittleEndian)
+            this.Number = number;
+            this.Name = this.Dasherize();
+
+            if (lowerLimit > upperLimit)
             {
-                Array.Reverse(value);
+                throw new ArgumentException($"The lower limit of {lowerLimit} can not be greater than the upper limit of {upperLimit}.");
+            }
+
+            this.LowerLimit = lowerLimit;
+            this.UpperLimit = upperLimit;
+
+            if (value.Length < lowerLimit || value.Length > upperLimit)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value), value, $"The length of the value is out of range [{this.LowerLimit} - {this.UpperLimit} bytes].");
             }
 
             this.RawValue = value;
+        }
+
+        protected CoapOption(ushort number, byte[] value, uint lowerLimit)
+            : this(number, value, lowerLimit, lowerLimit)
+        {
         }
 
         /// <summary>
@@ -32,7 +47,9 @@
         /// <value>
         /// The number.
         /// </value>
-        public abstract ushort Number { get; }
+        public ushort Number { get; }
+
+        public string Name { get; }
 
         /// <summary>
         /// Gets the raw value of that <see cref="CoapOption"/> in the system's computer architecture.
@@ -41,5 +58,11 @@
         /// The raw value.
         /// </value>
         public byte[] RawValue { get; }
+
+        public uint UpperLimit { get; }
+
+        public uint LowerLimit { get; }
+
+        public override string ToString() => $"{this.Name} ({this.Number})";
     }
 }

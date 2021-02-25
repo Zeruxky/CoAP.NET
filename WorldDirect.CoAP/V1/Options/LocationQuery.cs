@@ -4,20 +4,21 @@
 
     public class LocationQuery : StringOptionFormat
     {
+        public const ushort NUMBER = 20;
+
         public LocationQuery(string value)
-            : base(value)
+            : base(NUMBER, value, 0, 255)
         {
-            if (value.Length > 255)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value), value, "Value for Location-Query can only be in range of 0 - 255 characters.");
-            }
+        }
+    }
+
+    public class LocationQueryFactory : IOptionFactory
+    {
+        public CoapOption Create(OptionData src)
+        {
+            return new LocationQuery(src.StringValue);
         }
 
-        public override ushort Number => 20;
-
-        public override string ToString()
-        {
-            return $"Location-Query ({this.Number}): {this.Value}";
-        }
+        public int Number => LocationQuery.NUMBER;
     }
 }
