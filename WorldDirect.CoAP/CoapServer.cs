@@ -14,11 +14,11 @@
         private readonly ILogger<CoapServer> logger;
         private readonly UdpClient socket;
 
-        public CoapServer(IEnumerable<IMessageSerializer> serializers, ILogger<CoapServer> logger, IOptionsMonitor<CoapServerOptions> options)
+        public CoapServer(IEnumerable<IMessageSerializer> serializers, ILogger<CoapServer> logger)
         {
             this.serializers = serializers;
             this.logger = logger;
-            this.LocalEndPoint = new IPEndPoint(options.CurrentValue.Address, options.CurrentValue.Port);
+            this.LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 5683);
             this.socket = new UdpClient(this.LocalEndPoint);
         }
 

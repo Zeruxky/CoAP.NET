@@ -19,11 +19,16 @@
             // Initialize buffer with the specified size and set every item to zero (0) as default.
             var buffer = new byte[size];
 
-            // Fill the content of the Span into the buffer.
-            int index = 0;
-            foreach (var item in value)
+            if (value.Length > size)
             {
-                buffer[index++] = item;
+                throw new ArgumentOutOfRangeException();
+            }
+
+            // Fill the content of the Span into the buffer.
+            int offset = size - value.Length;
+            for (int i = 0; i < value.Length; i++)
+            {
+                buffer[i + offset] = value[i];
             }
 
             return buffer;

@@ -93,7 +93,7 @@ namespace WorldDirect.CoAP.V1.Messages
 
         public override string ToString()
         {
-            return this.value.ToString();
+            return this.value.ToString($"x{(UInt4)this.Length * 2}");
         }
     }
 }

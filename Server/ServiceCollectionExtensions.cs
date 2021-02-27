@@ -14,7 +14,7 @@
             return services.Scan(scan =>
             {
                 scan.FromApplicationDependencies()
-                    .AddClasses(c => c.Where(t => !t.IsEquivalentTo(typeof(UnknownCode)) && t.IsAssignableFrom(typeof(CoapCode))))
+                    .AddClasses(c => c.AssignableTo<CoapCode>().Where(t => t != typeof(UnknownCode)))
                     .As<CoapCode>()
                     .WithTransientLifetime();
             });

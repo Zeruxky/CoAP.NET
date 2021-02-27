@@ -10,23 +10,29 @@ namespace WorldDirect.CoAP
 
     public ref struct OptionData
     {
+        private readonly ReadOnlySpan<byte> value;
+
         public OptionData(ushort offset, ushort delta, ushort length, ReadOnlySpan<byte> value)
         {
             this.Number = (ushort)(offset + delta);
             this.Length = length;
-            this.Value = BitConverter.IsLittleEndian ? value.Reverse().ToArray() : value.ToArray();
-            this.UIntValue = BinaryPrimitives.ReadUInt32BigEndian(value.AlignByteArray(4));
-            this.StringValue = Encoding.UTF8.GetString(this.Value);
+            this.value = value;
         }
 
         public ushort Number { get; }
 
         public ushort Length { get; }
 
-        public byte[] Value { get; }
+        /// <summary>
+        /// Gets the value of the option.
+        /// </summary>
+        /// <value>
+        /// The value of the option in big endian order.
+        /// </value>
+        public byte[] Value => BitConverter.IsLittleEndian ? this.value.Reverse().ToArray() : this.value.ToArray();
 
-        public string StringValue { get; }
+        public string StringValue => Encoding.UTF8.GetString(this.value.ToArray());
 
-        public uint UIntValue { get; }
+        public uint UIntValue => BinaryPrimitives.ReadUInt32BigEndian(this.value.AlignByteArray(4));
     }
 }
