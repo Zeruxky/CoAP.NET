@@ -1,22 +1,18 @@
 ﻿namespace WorldDirect.CoAP
 {
-    using System.Collections.Generic;
+    using System;
     using System.Net;
     using System.Net.Sockets;
-    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
 
     public class CoapServer
     {
-        private readonly IEnumerable<IMessageSerializer> serializers;
         private readonly ILogger<CoapServer> logger;
         private readonly UdpClient socket;
 
-        public CoapServer(IEnumerable<IMessageSerializer> serializers, ILogger<CoapServer> logger)
+        public CoapServer(ILogger<CoapServer> logger)
         {
-            this.serializers = serializers;
             this.logger = logger;
             this.LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 5683);
             this.socket = new UdpClient(this.LocalEndPoint);
@@ -24,9 +20,27 @@
 
         public IPEndPoint LocalEndPoint { get; }
 
-        public Task<UdpReceiveResult> ReceiveAsync(CancellationToken ct = default)
+        public async Task<UdpReceiveResult> ReceiveAsync()
         {
-            return this.socket.ReceiveAsync();
+            var result = await this.socket.ReceiveAsync().ConfigureAwait(false);
+            this.logger.ReceivedMessage(result.Buffer.Length, result.RemoteEndPoint);
+            return result;
         }
+    }
+
+    internal static class LoggingExtensions
+    {
+        private static readonly Action<ILogger, int, IPEndPoint, Exception> ReceivedMessageDelegate;
+
+        static LoggingExtensions()
+        {
+            ReceivedMessageDelegate = LoggerMessage.Define<int, IPEndPoint>(
+                LogLevel.Debug,
+                new EventId(0),
+                "Received {amountOfBytes} bytes from endpoint {remoteEndpoint}.");
+        }
+
+        internal static void ReceivedMessage(this ILogger<CoapServer> logger, int bytes, IPEndPoint remoteEndPoint)
+            => ReceivedMessageDelegate(logger, bytes, remoteEndPoint, null);
     }
 }

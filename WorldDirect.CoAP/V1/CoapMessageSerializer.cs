@@ -9,6 +9,7 @@ namespace WorldDirect.CoAP.V1
     using System.Linq;
     using System.Net.Sockets;
     using System.Runtime.InteropServices;
+    using Microsoft.Extensions.Logging;
     using WorldDirect.CoAP.Common;
     using WorldDirect.CoAP.V1.Messages;
     using WorldDirect.CoAP.V1.Options;
@@ -20,6 +21,7 @@ namespace WorldDirect.CoAP.V1
     {
         private readonly IReader<IReadOnlyCollection<CoapOption>> optionReader;
         private readonly IReader<ReadOnlyMemory<byte>> payloadReader;
+        private readonly ILogger<CoapMessageSerializer> logger;
         private readonly IReader<CoapHeader> headerReader;
         private readonly IReader<CoapToken> tokenReader;
 
@@ -27,12 +29,14 @@ namespace WorldDirect.CoAP.V1
             IReader<CoapHeader> headerReader,
             IReader<CoapToken> tokenReader,
             IReader<IReadOnlyCollection<CoapOption>> optionsReader,
-            IReader<ReadOnlyMemory<byte>> payloadReader)
+            IReader<ReadOnlyMemory<byte>> payloadReader,
+            ILogger<CoapMessageSerializer> logger)
         {
             this.headerReader = headerReader;
             this.tokenReader = tokenReader;
             this.optionReader = optionsReader;
             this.payloadReader = payloadReader;
+            this.logger = logger;
         }
 
         public CoapMessage Deserialize(ReadOnlyMemory<byte> value)
@@ -41,7 +45,10 @@ namespace WorldDirect.CoAP.V1
             position += this.tokenReader.Read(value.Slice(position, (UInt4)header.Length), out var token);
             position += this.optionReader.Read(value.Slice(position), out var options);
             position += this.payloadReader.Read(value.Slice(position), out var payload);
-            return new CoapMessage(header, token, options, payload);
+
+            var message = new CoapMessage(header, token, options, payload);
+            this.logger.SuccessfullyDeserializedMessage(message.Header.Id, message.Token, position);
+            return message;
         }
 
         public bool CanDeserialize(UdpReceiveResult result)
@@ -49,5 +56,21 @@ namespace WorldDirect.CoAP.V1
             this.headerReader.Read(result.Buffer, out var header);
             return header.Version.Equals(CoapVersion.V1);
         }
+    }
+
+    internal static class LoggingExtensions
+    {
+        private static readonly Action<ILogger, CoapMessageId, CoapToken, int, Exception> SuccessfullyDeserializedMessageDelegate;
+
+        static LoggingExtensions()
+        {
+            SuccessfullyDeserializedMessageDelegate = LoggerMessage.Define<CoapMessageId, CoapToken, int>(
+                LogLevel.Debug,
+                new EventId(0),
+                "Deserialized message with ID {id}, token {token} and size of {bytes} bytes.");
+        }
+
+        internal static void SuccessfullyDeserializedMessage(this ILogger<CoapMessageSerializer> logger, CoapMessageId id, CoapToken token, int bytes)
+            => SuccessfullyDeserializedMessageDelegate(logger, id, token, bytes, null);
     }
 }

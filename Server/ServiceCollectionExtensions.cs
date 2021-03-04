@@ -2,6 +2,7 @@
 {
     using System.Reflection;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
     using WorldDirect.CoAP;
     using WorldDirect.CoAP.Codes;
     using WorldDirect.CoAP.V1;
@@ -102,8 +103,9 @@
             services.AddTransient<IMessageSerializer, CoapMessageSerializer>(s =>
             {
                 var codeRegistry = s.GetRequiredService<CodeRegistry>();
+                var logger = s.GetRequiredService<ILogger<CoapMessageSerializer>>();
                 var optionFactories = s.GetServices<IOptionFactory>();
-                return new CoapMessageSerializer(new HeaderReader(codeRegistry), new TokenReader(), new OptionsReader(optionFactories), new PayloadReader());
+                return new CoapMessageSerializer(new HeaderReader(codeRegistry), new TokenReader(), new OptionsReader(optionFactories), new PayloadReader(), logger);
             });
 
             services.AddCoapCodes();

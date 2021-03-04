@@ -33,6 +33,6 @@ namespace WorldDirect.CoAP
 
         public string StringValue => Encoding.UTF8.GetString(this.value.ToArray());
 
-        public uint UIntValue => BinaryPrimitives.ReadUInt32BigEndian(this.value.AlignByteArray(4));
+        public uint UIntValue => BinaryPrimitives.ReadUInt32BigEndian(this.value.Align(4));
     }
 }

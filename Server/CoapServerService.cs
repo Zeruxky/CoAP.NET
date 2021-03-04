@@ -28,15 +28,9 @@
             this.logger.LogInformation($"Started CoAP server at {server.LocalEndPoint}.");
             while (!stoppingToken.IsCancellationRequested)
             {
-                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
-                {
-                    var combinedCt = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, cts.Token);
-                    var result = await this.server.ReceiveAsync(combinedCt.Token).ConfigureAwait(false);
-                    this.logger.LogDebug($"Received {result.Buffer.Length} bytes from {result.RemoteEndPoint}.");
-                    var serializer = this.serializers.Single(s => s.CanDeserialize(result));
-                    var message = serializer.Deserialize(result.Buffer);
-                    this.logger.LogInformation($"Deserialized message with ID {message.Header.Id} and token {message.Token}.");
-                }
+                var result = await this.server.ReceiveAsync().ConfigureAwait(false);
+                var serializer = this.serializers.Single(s => s.CanDeserialize(result));
+                var message = serializer.Deserialize(result.Buffer);
             }
         }
     }
