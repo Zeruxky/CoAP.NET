@@ -22,7 +22,7 @@ namespace WorldDirect.CoAP.V1.Options
         /// reversed, because the <paramref name="value"/> is in network byte order (big endian order).
         /// </remarks>
         protected UIntOptionFormat(ushort number, uint value, uint lowerLimit, uint upperLimit)
-            : base(number, BitConverter.GetBytes(value).RemoveZeros(), lowerLimit, upperLimit)
+            : base(number, BitConverter.GetBytes(value).RemoveLeadingZeros(), lowerLimit, upperLimit)
         {
         }
 
@@ -31,7 +31,7 @@ namespace WorldDirect.CoAP.V1.Options
         {
         }
 
-        public uint Value => BinaryPrimitives.ReadUInt32BigEndian(this.RawValue);
+        public uint Value => BinaryPrimitives.ReadUInt32BigEndian(this.RawValue.AsSpan().Align(32));
 
         public override string ToString() => $"{base.ToString()}: {this.Value:D}";
     }

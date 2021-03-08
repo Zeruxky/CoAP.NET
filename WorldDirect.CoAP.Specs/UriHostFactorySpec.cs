@@ -3,8 +3,8 @@
 namespace WorldDirect.CoAP.Specs
 {
     using System.Text;
-    using V1.Options;
-    using WorldDirect.CoAP.V1;
+    using FluentAssertions;
+    using WorldDirect.CoAP.V1.Options;
     using Xunit;
 
     public class UriHostFactorySpec
@@ -17,11 +17,37 @@ namespace WorldDirect.CoAP.Specs
         }
 
         [Fact]
-        public void X()
+        public void FactoryCanCreateUriHostFromString()
         {
-            var content = Encoding.UTF8.GetBytes("Hällo");
+            var expectedUriHost = new UriHost("example.net");
+
+            var content = Encoding.UTF8.GetBytes("example.net");
             var optionData = new OptionData(0, 1, (ushort)content.Length, content);
-            var option = this.cut.Create(optionData);
+            var actualUriHost = this.cut.Create(optionData);
+
+            actualUriHost.Should().Be(expectedUriHost);
+        }
+    }
+
+    public class UriPathFactorySpec
+    {
+        private readonly UriPathFactory cut;
+
+        public UriPathFactorySpec()
+        {
+            this.cut = new UriPathFactory();
+        }
+
+        [Fact]
+        public void FactoryCanCreateUriPathFromString()
+        {
+            var expectedUriPath = new UriPath(".well-known");
+
+            var content = Encoding.UTF8.GetBytes(".well-known");
+            var optionData = new OptionData(0, 1, (ushort)content.Length, content);
+            var actualUriPath = this.cut.Create(optionData);
+
+            actualUriPath.Should().Be(expectedUriPath);
         }
     }
 }

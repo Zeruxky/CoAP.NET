@@ -3,12 +3,8 @@
 namespace WorldDirect.CoAP.V1
 {
     using System;
-    using System.Buffers;
-    using System.Buffers.Binary;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Net.Sockets;
-    using System.Runtime.InteropServices;
     using Microsoft.Extensions.Logging;
     using WorldDirect.CoAP.Common;
     using WorldDirect.CoAP.V1.Messages;

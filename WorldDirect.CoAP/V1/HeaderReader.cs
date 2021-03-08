@@ -42,7 +42,6 @@ namespace WorldDirect.CoAP.V1
             var code = this.registry.Get(codeClass, codeDetail);
 
             var messageId = (CoapMessageId)BinaryPrimitives.ReadUInt16BigEndian(value.Span.Slice(2, 2));
-
             result = new CoapHeader(version, type, tokenLength, code, messageId);
             return 4;
         }

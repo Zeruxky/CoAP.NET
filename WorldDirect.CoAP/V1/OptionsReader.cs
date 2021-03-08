@@ -70,13 +70,13 @@ namespace WorldDirect.CoAP.V1
 
             if (length == 14)
             {
-                var extended = (ushort)(BinaryPrimitives.ReadUInt16BigEndian(value.Slice(startOfExtendedLength, 2)) - 269);
+                var extended = (ushort)(BinaryPrimitives.ReadUInt16BigEndian(value.Slice(startOfExtendedLength, 2)) + 269);
                 return new OptionsLength(extended, 2);
             }
 
             if (length == 13)
             {
-                var extended = (ushort)(value[startOfExtendedLength] - 13);
+                var extended = (ushort)(value[startOfExtendedLength] + 13);
                 return new OptionsLength(extended, 1);
             }
 

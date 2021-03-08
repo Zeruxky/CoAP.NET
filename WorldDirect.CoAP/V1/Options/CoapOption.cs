@@ -1,11 +1,12 @@
 ﻿namespace WorldDirect.CoAP.V1.Options
 {
     using System;
+    using System.Linq;
 
     /// <summary>
     /// Represents a option specified by RFC 7252.
     /// </summary>
-    public abstract class CoapOption
+    public abstract class CoapOption : IEquatable<CoapOption>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CoapOption"/> class.
@@ -64,5 +65,55 @@
         public uint LowerLimit { get; }
 
         public override string ToString() => $"{this.Name} ({this.Number})";
+
+        public bool Equals(CoapOption other)
+        {
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return this.Number == other.Number && this.Name == other.Name && this.RawValue.SequenceEqual(other.RawValue);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+
+            return Equals((CoapOption) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Number, Name, RawValue);
+        }
+
+        public static bool operator ==(CoapOption left, CoapOption right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(CoapOption left, CoapOption right)
+        {
+            return !Equals(left, right);
+        }
     }
 }
