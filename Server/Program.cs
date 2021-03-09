@@ -59,6 +59,7 @@ namespace Server
                     services.AddHostedService<CoapServerService>();
                     services.AddTransient<CoapServer>();
                     services.UseRFC7252Specification();
+                    services.AddOptionFactories(typeof(Oscore.OscoreOptionFactory).Assembly);
                 });
         }
     }

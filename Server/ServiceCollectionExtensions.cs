@@ -5,6 +5,7 @@
     using Microsoft.Extensions.Logging;
     using WorldDirect.CoAP;
     using WorldDirect.CoAP.Codes;
+    using WorldDirect.CoAP.Codes.MethodCodes;
     using WorldDirect.CoAP.V1;
     using WorldDirect.CoAP.V1.Options;
 
@@ -12,24 +13,12 @@
     {
         private static IServiceCollection AddCoapCodes(this IServiceCollection services)
         {
-            return services.Scan(scan =>
-            {
-                scan.FromApplicationDependencies()
-                    .AddClasses(c => c.AssignableTo<CoapCode>().Where(t => t != typeof(UnknownCode)))
-                    .As<CoapCode>()
-                    .WithTransientLifetime();
-            });
+            return services.AddContentFormats(typeof(Get).Assembly);
         }
 
         private static IServiceCollection AddReaders(this IServiceCollection services)
         {
-            return services.Scan(scan =>
-            {
-                scan.FromApplicationDependencies()
-                    .AddClasses(c => c.AssignableTo(typeof(IReader<>)))
-                    .AsImplementedInterfaces()
-                    .WithTransientLifetime();
-            });
+            return services.AddContentFormats(typeof(HeaderReader).Assembly);
         }
 
         public static IServiceCollection AddReaders(this IServiceCollection services, params Assembly[] assemblies)
@@ -56,13 +45,7 @@
 
         private static IServiceCollection AddOptionFactories(this IServiceCollection services)
         {
-            return services.Scan(scan =>
-            {
-                scan.FromApplicationDependencies()
-                    .AddClasses(c => c.AssignableTo<IOptionFactory>())
-                    .AsImplementedInterfaces()
-                    .WithTransientLifetime();
-            });
+            return services.AddContentFormats(typeof(Accept).Assembly);
         }
 
         public static IServiceCollection AddOptionFactories(this IServiceCollection services, params Assembly[] assemblies)
@@ -78,13 +61,7 @@
 
         public static IServiceCollection AddContentFormats(this IServiceCollection services)
         {
-            return services.Scan(scan =>
-            {
-                scan.FromApplicationDependencies()
-                    .AddClasses(c => c.AssignableTo<ContentFormat>())
-                    .As<ContentFormat>()
-                    .WithTransientLifetime();
-            });
+            return services.AddContentFormats(typeof(JsonFormat).Assembly);
         }
 
         public static IServiceCollection AddContentFormats(this IServiceCollection services, params Assembly[] assemblies)
