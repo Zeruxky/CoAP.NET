@@ -4,7 +4,7 @@
     {
         public CoapOption Create(OptionData src)
         {
-            return new LocationPath(src.StringValue);
+            return new LocationPath(src.Value);
         }
 
         public int Number => LocationPath.NUMBER;

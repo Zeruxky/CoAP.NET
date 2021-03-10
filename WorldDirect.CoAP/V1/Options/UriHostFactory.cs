@@ -6,7 +6,7 @@ namespace WorldDirect.CoAP.V1.Options
     {
         public CoapOption Create(OptionData src)
         {
-            return new UriHost(src.StringValue);
+            return new UriHost(src.Value);
         }
 
         public int Number => UriHost.NUMBER;

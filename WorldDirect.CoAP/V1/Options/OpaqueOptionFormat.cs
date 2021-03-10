@@ -14,6 +14,7 @@ namespace WorldDirect.CoAP.V1.Options
     /// <seealso cref="System.IEquatable{WorldDirect.CoAP.Messages.Options.OpaqueOptionFormat}" />
     public abstract class OpaqueOptionFormat : CoapOption
     {
+        private const ushort MIN_LENGTH = 0;
         /// <summary>
         /// Initializes a new instance of the <see cref="OpaqueOptionFormat"/> class.
         /// </summary>
@@ -22,13 +23,13 @@ namespace WorldDirect.CoAP.V1.Options
         /// If the system's computer architecture is in little endian order, the <paramref name="value" /> will be
         /// reversed, because the <paramref name="value" /> is in network byte order (big endian order).
         /// </remarks>
-        protected OpaqueOptionFormat(ushort number, byte[] value, uint lowerLimit, uint upperLimit)
-            : base(number, value, lowerLimit, upperLimit)
+        protected OpaqueOptionFormat(ushort number, byte[] value, uint maxLength, uint minLength)
+            : base(number, value, maxLength, minLength)
         {
         }
 
-        protected OpaqueOptionFormat(ushort number, byte[] value, uint lowerLimit)
-            : base(number, value, lowerLimit)
+        protected OpaqueOptionFormat(ushort number, byte[] value, uint maxlength)
+            : this(number, value, maxlength, MIN_LENGTH)
         {
         }
 

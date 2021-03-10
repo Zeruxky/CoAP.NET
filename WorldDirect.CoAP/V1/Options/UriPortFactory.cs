@@ -4,7 +4,7 @@
     {
         public CoapOption Create(OptionData src)
         {
-            return new UriPort(src.UIntValue);
+            return new UriPort(src.Value);
         }
 
         public int Number => UriPort.NUMBER;

@@ -13,6 +13,8 @@ namespace WorldDirect.CoAP.V1.Options
     /// </summary>
     public abstract class UIntOptionFormat : CoapOption
     {
+        private const ushort MIN_LENGTH = 0;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="UIntOptionFormat"/> class.
         /// </summary>
@@ -21,13 +23,23 @@ namespace WorldDirect.CoAP.V1.Options
         /// If the system's computer architecture is in little endian order, the <paramref name="value"/> will be
         /// reversed, because the <paramref name="value"/> is in network byte order (big endian order).
         /// </remarks>
-        protected UIntOptionFormat(ushort number, uint value, uint lowerLimit, uint upperLimit)
-            : base(number, BitConverter.GetBytes(value).RemoveLeadingZeros(), lowerLimit, upperLimit)
+        protected UIntOptionFormat(ushort number, uint value, uint maxLength, uint minLength)
+            : base(number, BitConverter.GetBytes(value).RemoveLeadingZeros(), maxLength, minLength)
         {
         }
 
-        protected UIntOptionFormat(ushort number, uint value, uint lowerLimit)
-            : this(number, value, lowerLimit, lowerLimit)
+        protected UIntOptionFormat(ushort number, uint value, uint maxLength)
+            : this(number, value, maxLength, MIN_LENGTH)
+        {
+        }
+
+        protected UIntOptionFormat(ushort number, byte[] value, uint maxLength)
+            : this(number, value, maxLength, MIN_LENGTH)
+        {
+        }
+
+        protected UIntOptionFormat(ushort number, byte[] value, uint maxLength, uint minLength)
+            : base(number, value, maxLength, minLength)
         {
         }
 

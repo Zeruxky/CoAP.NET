@@ -4,7 +4,7 @@
     {
         public CoapOption Create(OptionData src)
         {
-            return new UriQuery(src.StringValue);
+            return new UriQuery(src.Value);
         }
 
         public int Number => UriQuery.NUMBER;

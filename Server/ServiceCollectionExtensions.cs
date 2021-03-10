@@ -45,7 +45,7 @@
 
         private static IServiceCollection AddOptionFactories(this IServiceCollection services)
         {
-            return services.AddContentFormats(typeof(Accept).Assembly);
+            return services.AddOptionFactories(typeof(Accept).Assembly);
         }
 
         public static IServiceCollection AddOptionFactories(this IServiceCollection services, params Assembly[] assemblies)

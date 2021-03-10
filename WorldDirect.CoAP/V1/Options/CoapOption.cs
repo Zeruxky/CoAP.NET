@@ -8,6 +8,8 @@
     /// </summary>
     public abstract class CoapOption : IEquatable<CoapOption>
     {
+        private const ushort MIN_LENGTH = 0;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CoapOption"/> class.
         /// </summary>
@@ -16,29 +18,33 @@
         /// If the system's computer architecture is in little endian order, the <paramref name="value"/>
         /// will be reversed, because the <paramref name="value"/> is expected to be in network byte order (big endian order).
         /// </remarks>
-        protected CoapOption(ushort number, byte[] value,  uint lowerLimit, uint upperLimit)
+        protected CoapOption(ushort number, byte[] value,  uint maxLength, uint minLength)
         {
             this.Number = number;
             this.Name = this.Dasherize();
 
-            if (lowerLimit > upperLimit)
+            if (minLength > maxLength)
             {
-                throw new ArgumentException($"The lower limit of {lowerLimit} can not be greater than the upper limit of {upperLimit}.");
+                throw new ArgumentException($"The minimum length of {minLength} can not be greater than the maximum length of {maxLength}.");
             }
 
-            this.LowerLimit = lowerLimit;
-            this.UpperLimit = upperLimit;
+            this.MinLength = minLength;
+            this.MaxLength = maxLength;
 
-            if (value.Length < lowerLimit || value.Length > upperLimit)
+            if (value.Length < minLength || value.Length > maxLength)
             {
-                throw new ArgumentOutOfRangeException(nameof(value), value, $"The length of the value is out of range [{this.LowerLimit} - {this.UpperLimit} bytes].");
+                throw new ArgumentOutOfRangeException(nameof(value), value, $"The length of the value is out of range [{this.MinLength} - {this.MaxLength} bytes].");
             }
 
             this.RawValue = value;
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(this.RawValue);
+            }
         }
 
-        protected CoapOption(ushort number, byte[] value, uint lowerLimit)
-            : this(number, value, lowerLimit, lowerLimit)
+        protected CoapOption(ushort number, byte[] value, uint maxLength)
+            : this(number, value, maxLength, MIN_LENGTH)
         {
         }
 
@@ -60,9 +66,9 @@
         /// </value>
         public byte[] RawValue { get; }
 
-        public uint UpperLimit { get; }
+        public uint MaxLength { get; }
 
-        public uint LowerLimit { get; }
+        public uint MinLength { get; }
 
         public override string ToString() => $"{this.Name} ({this.Number})";
 

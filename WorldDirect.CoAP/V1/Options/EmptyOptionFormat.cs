@@ -12,13 +12,14 @@ namespace WorldDirect.CoAP.V1.Options
     /// <seealso cref="System.IEquatable{WorldDirect.CoAP.Messages.Options.EmptyOptionFormat}" />
     public abstract class EmptyOptionFormat : CoapOption
     {
+        private const ushort MAX_LENGTH = 0;
         private static readonly byte[] EmptyByteArray = new byte[0];
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EmptyOptionFormat"/> class.
         /// </summary>
         protected EmptyOptionFormat(ushort number)
-            : base(number, EmptyByteArray, 0)
+            : base(number, EmptyByteArray, MAX_LENGTH)
         {
         }
     }

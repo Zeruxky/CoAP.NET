@@ -4,7 +4,7 @@
     {
         public CoapOption Create(OptionData src)
         {
-            return new MaxAge(src.UIntValue);
+            return new MaxAge(src.Value);
         }
 
         public int Number => MaxAge.NUMBER;

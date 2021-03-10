@@ -12,9 +12,11 @@ namespace WorldDirect.CoAP.V1.Options
     public abstract class ContentFormat : UIntOptionFormat
     {
         public const ushort NUMBER = 12;
+        private const ushort MAX_LENGTH = 2;
+        private const ushort MIN_LENGTH = 0;
 
         protected ContentFormat(uint id, string mediaType, IEnumerable<Encoding> encodings)
-            : base(NUMBER, id, 0, 2)
+            : base(NUMBER, id, MAX_LENGTH, MIN_LENGTH)
         {
             this.MediaType = mediaType;
             this.Encodings = new List<Encoding>(encodings);

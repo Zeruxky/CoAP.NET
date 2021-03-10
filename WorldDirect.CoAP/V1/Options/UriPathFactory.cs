@@ -5,7 +5,7 @@
         /// <inheritdoc />
         public CoapOption Create(OptionData src)
         {
-            return new UriPath(src.StringValue);
+            return new UriPath(src.Value);
         }
 
         /// <inheritdoc />

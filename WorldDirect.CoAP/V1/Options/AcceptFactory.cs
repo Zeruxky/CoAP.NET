@@ -4,9 +4,9 @@
     {
         public CoapOption Create(OptionData src)
         {
-            return new Accept(src.UIntValue);
+            return new Accept(src.Value);
         }
 
-        public int Number => Accept.Id;
+        public int Number => Accept.NUMBER;
     }
 }
