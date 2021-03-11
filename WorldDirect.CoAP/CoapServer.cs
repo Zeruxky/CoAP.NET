@@ -1,30 +1,63 @@
 ﻿namespace WorldDirect.CoAP
 {
     using System;
+    using System.Linq;
     using System.Net;
     using System.Net.Sockets;
+    using System.Text;
     using System.Threading.Tasks;
+    using Codes;
     using Microsoft.Extensions.Logging;
+    using V1.Messages;
+    using V1.Options;
 
     public class CoapServer
     {
-        private readonly ILogger<CoapServer> logger;
         private readonly UdpClient socket;
 
-        public CoapServer(ILogger<CoapServer> logger)
+        public CoapServer(IPAddress address, int port)
         {
-            this.logger = logger;
-            this.LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 5683);
+            this.LocalEndPoint = new IPEndPoint(address, port);
             this.socket = new UdpClient(this.LocalEndPoint);
         }
 
         public IPEndPoint LocalEndPoint { get; }
 
-        public async Task<UdpReceiveResult> ReceiveAsync()
+        public Task<UdpReceiveResult> ReceiveAsync()
         {
-            var result = await this.socket.ReceiveAsync().ConfigureAwait(false);
-            this.logger.ReceivedMessage(result.Buffer.Length, result.RemoteEndPoint);
-            return result;
+            return this.socket.ReceiveAsync();
         }
+
+        public void StopServer()
+        {
+            this.socket.Close();
+        }
+    }
+
+    public class CoapContext
+    {
+        public ConnectionInfo Connection { get; set; }
+
+        public CoapRequest Request { get; set; }
+    }
+
+    public class ConnectionInfo
+    {
+
+    }
+
+    public class CoapRequest
+    {
+        public CoapCode Code { get; }
+
+        public Uri RequestUri { get; }
+
+        public CoapVersion Version => this.Message.Header.Version;
+
+        public CoapType Type => this.Message.Header.Type;
+
+        public CoapToken Token => this.Message.Token;
+
+        public CoapMessage Message { get; }
     }
 }

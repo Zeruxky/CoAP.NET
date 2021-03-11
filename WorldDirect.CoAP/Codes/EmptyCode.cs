@@ -10,5 +10,7 @@ namespace WorldDirect.CoAP.Codes
             : base(new CodeClass((UInt3)0), new CodeDetail((UInt5)0))
         {
         }
+
+        public override string ToString() => $"Empty {base.ToString()}";
     }
 }

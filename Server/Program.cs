@@ -1,13 +1,12 @@
-﻿using System;
-
-namespace Server
+﻿namespace Server
 {
+    using System;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using NLog.Extensions.Logging;
-    using WorldDirect.CoAP;
+    using Oscore;
 
     /// <summary>
     /// Represents the application startup configuration.
@@ -56,10 +55,10 @@ namespace Server
                 })
                 .ConfigureServices((context, services) =>
                 {
+                    services.Configure<CoapServerServiceOptions>(context.Configuration.GetSection(CoapServerServiceOptions.KEY));
                     services.AddHostedService<CoapServerService>();
-                    services.AddTransient<CoapServer>();
                     services.UseRFC7252Specification();
-                    services.AddOptionFactories(typeof(Oscore.OscoreOptionFactory).Assembly);
+                    services.AddOptionFactory<OscoreOptionFactory>();
                 });
         }
     }
