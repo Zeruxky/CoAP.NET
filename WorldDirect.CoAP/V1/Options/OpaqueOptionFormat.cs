@@ -12,9 +12,10 @@ namespace WorldDirect.CoAP.V1.Options
     /// </summary>
     /// <seealso cref="WorldDirect.CoAP.Messages.Options.CoapOption" />
     /// <seealso cref="System.IEquatable{WorldDirect.CoAP.Messages.Options.OpaqueOptionFormat}" />
-    public abstract class OpaqueOptionFormat : CoapOption
+    public abstract class OpaqueOptionFormat : CoapOption<byte[]>
     {
         private const ushort MIN_LENGTH = 0;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="OpaqueOptionFormat"/> class.
         /// </summary>
@@ -24,7 +25,7 @@ namespace WorldDirect.CoAP.V1.Options
         /// reversed, because the <paramref name="value" /> is in network byte order (big endian order).
         /// </remarks>
         protected OpaqueOptionFormat(ushort number, byte[] value, uint maxLength, uint minLength)
-            : base(number, value, maxLength, minLength)
+            : base(number, value, maxLength, minLength, Constructor)
         {
         }
 
@@ -33,6 +34,15 @@ namespace WorldDirect.CoAP.V1.Options
         {
         }
 
-        public override string ToString() => $"{base.ToString()}: {this.RawValue.ToString(' ')}";
+        public override string ToString() => $"{base.ToString()}: {this.Value.ToString(' ')}";
+
+        private static byte[] Constructor(byte[] value)
+        {
+            var buffer = BitConverter.IsLittleEndian
+                ? value.Reverse().ToArray()
+                : value;
+
+            return buffer.RemoveLeadingZeros();
+        }
     }
 }

@@ -3,15 +3,17 @@
 namespace WorldDirect.CoAP.V1.Options
 {
     using System;
+    using System.Buffers;
     using System.Buffers.Binary;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using Common.Extensions;
 
     /// <summary>
     /// Represents a <see cref="CoapOption"/> as in <see cref="uint"/> format. This means the value
     /// of the <see cref="CoapOption"/> is a <see cref="uint"/>.
     /// </summary>
-    public abstract class UIntOptionFormat : CoapOption
+    public abstract class UIntOptionFormat : CoapOption<uint>
     {
         private const ushort MIN_LENGTH = 0;
 
@@ -24,7 +26,7 @@ namespace WorldDirect.CoAP.V1.Options
         /// reversed, because the <paramref name="value"/> is in network byte order (big endian order).
         /// </remarks>
         protected UIntOptionFormat(ushort number, uint value, uint maxLength, uint minLength)
-            : base(number, BitConverter.GetBytes(value).RemoveLeadingZeros(), maxLength, minLength)
+            : base(number, value, maxLength, minLength, Constructor)
         {
         }
 
@@ -39,12 +41,15 @@ namespace WorldDirect.CoAP.V1.Options
         }
 
         protected UIntOptionFormat(ushort number, byte[] value, uint maxLength, uint minLength)
-            : base(number, value, maxLength, minLength)
+            : base(number, value, maxLength, minLength, bytes => BinaryPrimitives.ReadUInt32BigEndian(bytes))
         {
         }
 
-        public uint Value => BinaryPrimitives.ReadUInt32BigEndian(this.RawValue.AsSpan().Align(32));
-
-        public override string ToString() => $"{base.ToString()}: {this.Value:D}";
+        private static byte[] Constructor(uint value)
+        {
+            var buffer = new byte[4];
+            BinaryPrimitives.WriteUInt32BigEndian(buffer, value);
+            return buffer.RemoveLeadingZeros();
+        }
     }
 }

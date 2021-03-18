@@ -6,7 +6,6 @@
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using NLog.Extensions.Logging;
-    using Oscore;
 
     /// <summary>
     /// Represents the application startup configuration.
@@ -58,7 +57,6 @@
                     services.Configure<CoapServerServiceOptions>(context.Configuration.GetSection(CoapServerServiceOptions.KEY));
                     services.AddHostedService<CoapServerService>();
                     services.UseRFC7252Specification();
-                    services.AddOptionFactory<OscoreOptionFactory>();
                 });
         }
     }

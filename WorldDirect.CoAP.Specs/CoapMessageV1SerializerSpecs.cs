@@ -8,7 +8,6 @@ namespace WorldDirect.CoAP.Specs
     using FakeItEasy;
     using FluentAssertions;
     using Microsoft.Extensions.Logging;
-    using Oscore;
     using WorldDirect.CoAP.Codes;
     using WorldDirect.CoAP.Codes.MethodCodes;
     using WorldDirect.CoAP.Common;
@@ -139,17 +138,6 @@ namespace WorldDirect.CoAP.Specs
             var message = this.cut.Deserialize(ByteArrayExtensions.FromHexString(inputString));
         }
 
-        [Fact]
-        public void X()
-        {
-            var bytes = new byte[]
-            {
-                0x54, 0x45, 0xca, 0x3d, 0x8e, 0xef, 0x00, 0x00, 0x95, 0x56, 0x61, 0x6C, 0x75, 0x65, 0x05, 0x56, 0x61, 0x6C, 0x75, 0x65,
-            };
-
-            var message = this.cut.Deserialize(bytes);
-        }
-
         private static IEnumerable<CoapCode> GetCoapCodes()
         {
             var codes = new List<CoapCode>()
@@ -206,7 +194,6 @@ namespace WorldDirect.CoAP.Specs
                 .Union(new IOptionFactory[]
                 {
                     contentFormatFactory,
-                    new OscoreOptionFactory(),
                 });
             return factories;
         }

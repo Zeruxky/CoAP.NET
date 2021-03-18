@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Oscore\Oscore.csproj" />
     <ProjectReference Include="..\WorldDirect.CoAP\WorldDirect.CoAP.csproj" />
   </ItemGroup>
 

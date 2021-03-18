@@ -7,18 +7,16 @@ namespace WorldDirect.CoAP.V1.Options
     public class Accept : UIntOptionFormat
     {
         public const ushort NUMBER = 17;
-        private const ushort MIN_LENGTH = 0;
         private const ushort MAX_LENGTH = 2;
 
         public Accept(uint value)
-            : base(NUMBER, value, MIN_LENGTH, MAX_LENGTH)
+            : base(NUMBER, value, MAX_LENGTH)
         {
         }
 
         public Accept(byte[] value)
-            : base(NUMBER, value, MIN_LENGTH, MAX_LENGTH)
+            : base(NUMBER, value, MAX_LENGTH)
         {
-
         }
     }
 }

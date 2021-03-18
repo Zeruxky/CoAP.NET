@@ -9,7 +9,7 @@ namespace Oscore
         public const ushort NUMBER = 9;
 
         public OscoreOption(byte[] value, OscoreOptionValue optionValue)
-            : base(NUMBER, value, 0, 255)
+            : base(NUMBER, value, 255, false)
         {
             this.Value = optionValue;
         }

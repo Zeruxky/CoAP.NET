@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using Common.Extensions;
 
     /// <summary>
     /// Represents a option specified by RFC 7252.
@@ -33,14 +34,10 @@
 
             if (value.Length < minLength || value.Length > maxLength)
             {
-                throw new ArgumentOutOfRangeException(nameof(value), value, $"The length of the value is out of range [{this.MinLength} - {this.MaxLength} bytes].");
+                throw new ArgumentOutOfRangeException(nameof(this.Value), this.Value, $"The length of the value is out of range [{this.MinLength} - {this.MaxLength} bytes].");
             }
 
-            this.RawValue = value;
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(this.RawValue);
-            }
+            this.Value = value;
         }
 
         protected CoapOption(ushort number, byte[] value, uint maxLength)
@@ -64,11 +61,21 @@
         /// <value>
         /// The raw value.
         /// </value>
-        public byte[] RawValue { get; }
+        public byte[] Value { get; }
 
         public uint MaxLength { get; }
 
         public uint MinLength { get; }
+
+        public static bool operator ==(CoapOption left, CoapOption right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(CoapOption left, CoapOption right)
+        {
+            return !Equals(left, right);
+        }
 
         public override string ToString() => $"{this.Name} ({this.Number})";
 
@@ -84,7 +91,7 @@
                 return true;
             }
 
-            return this.Number == other.Number && this.Name == other.Name && this.RawValue.SequenceEqual(other.RawValue);
+            return this.Number.Equals(other.Number) && this.Name.Equals(other.Name) && this.Value.SequenceEqual(other.Value);
         }
 
         public override bool Equals(object obj)
@@ -104,22 +111,12 @@
                 return false;
             }
 
-            return Equals((CoapOption) obj);
+            return this.Equals((CoapOption) obj);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Number, Name, RawValue);
-        }
-
-        public static bool operator ==(CoapOption left, CoapOption right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(CoapOption left, CoapOption right)
-        {
-            return !Equals(left, right);
+            return HashCode.Combine(this.Number, this.Name, this.Value);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace WorldDirect.CoAP.V1.Options
     /// </summary>
     /// <seealso cref="WorldDirect.CoAP.Messages.Options.CoapOption" />
     /// <seealso cref="System.IEquatable{WorldDirect.CoAP.Messages.Options.StringOptionFormat}" />
-    public abstract class StringOptionFormat : CoapOption
+    public abstract class StringOptionFormat : CoapOption<string>
     {
         private const ushort MIN_LENGTH = 0;
 
@@ -24,9 +24,8 @@ namespace WorldDirect.CoAP.V1.Options
         /// normalize the string by using the Unicode normalization form "NFC".
         /// </remarks>
         protected StringOptionFormat(ushort number, string value, uint maxLength, uint minLength)
-            : base(number, Encoding.UTF8.GetBytes(value), maxLength, minLength)
+            : base(number, value, maxLength, minLength, s => Encoding.UTF8.GetBytes(s))
         {
-            this.Value = value;
         }
 
         protected StringOptionFormat(ushort number, string value, uint maxLength)
@@ -35,18 +34,13 @@ namespace WorldDirect.CoAP.V1.Options
         }
 
         protected StringOptionFormat(ushort number, byte[] value, uint maxLength, uint minLength)
-            : base(number, value, maxLength, minLength)
+            : base(number, value, maxLength, minLength, bytes => Encoding.UTF8.GetString(bytes))
         {
-            this.Value = Encoding.UTF8.GetString(value);
         }
 
         protected StringOptionFormat(ushort number, byte[] value, uint maxLength)
             : this(number, value, maxLength, MIN_LENGTH)
         {
         }
-
-        public string Value { get; }
-
-        public override string ToString() => $"{base.ToString()}: {this.Value}";
     }
 }

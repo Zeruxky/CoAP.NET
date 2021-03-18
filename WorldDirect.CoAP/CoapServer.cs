@@ -34,30 +34,30 @@
         }
     }
 
-    public class CoapContext
-    {
-        public ConnectionInfo Connection { get; set; }
+    //public class CoapContext
+    //{
+    //    public ConnectionInfo Connection { get; set; }
 
-        public CoapRequest Request { get; set; }
-    }
+    //    public CoapRequest Request { get; set; }
+    //}
 
-    public class ConnectionInfo
-    {
+    //public class ConnectionInfo
+    //{
 
-    }
+    //}
 
-    public class CoapRequest
-    {
-        public CoapCode Code { get; }
+    //public class CoapRequest
+    //{
+    //    public CoapCode Code { get; }
 
-        public Uri RequestUri { get; }
+    //    public Uri RequestUri { get; }
 
-        public CoapVersion Version => this.Message.Header.Version;
+    //    public CoapVersion Version => this.Message.Header.Version;
 
-        public CoapType Type => this.Message.Header.Type;
+    //    public CoapType Type => this.Message.Header.Type;
 
-        public CoapToken Token => this.Message.Token;
+    //    public CoapToken Token => this.Message.Token;
 
-        public CoapMessage Message { get; }
-    }
+    //    public CoapMessage Message { get; }
+    //}
 }

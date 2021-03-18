@@ -3,6 +3,7 @@
 namespace WorldDirect.CoAP.Common.Extensions
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Text;
@@ -81,10 +82,11 @@ namespace WorldDirect.CoAP.Common.Extensions
 
         public static byte[] RemoveLeadingZeros(this byte[] value)
         {
-            var x = value
-                .Where(b => !b.Equals(0))
-                .ToArray();
-            return x;
+            var buffer = BitConverter.IsLittleEndian
+                ? value.SkipWhile(b => b == 0).ToArray()
+                : value.Reverse().SkipWhile(b => b == 0).ToArray();
+
+            return buffer;
         }
 
         private static int CalculateBytes(int bits)

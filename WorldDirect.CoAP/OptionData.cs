@@ -29,10 +29,10 @@ namespace WorldDirect.CoAP
         /// <value>
         /// The value of the option in big endian order.
         /// </value>
-        public byte[] Value => BitConverter.IsLittleEndian ? this.value.Reverse().ToArray() : this.value.ToArray();
-
-        public string StringValue => Encoding.UTF8.GetString(this.value.ToArray());
+        public byte[] Value => this.value.ToArray();
 
         public uint UIntValue => BinaryPrimitives.ReadUInt32BigEndian(this.value.Align(32));
+
+        public string StringValue => Encoding.UTF8.GetString(this.Value);
     }
 }

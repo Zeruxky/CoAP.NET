@@ -94,13 +94,13 @@ namespace WorldDirect.CoAP.V1
 
             if (delta == 14)
             {
-                var extended = (ushort)(BinaryPrimitives.ReadUInt16BigEndian(value.Slice(1, 2)) - 269);
+                var extended = (ushort)(BinaryPrimitives.ReadUInt16BigEndian(value.Slice(1, 2)) + 269);
                 return new OptionsDelta(extended, 2);
             }
 
             if (delta == 13)
             {
-                var extended = (ushort)(value[1] - 13);
+                var extended = (ushort)(value[1] + 13);
                 return new OptionsDelta(extended, 1);
             }
 
