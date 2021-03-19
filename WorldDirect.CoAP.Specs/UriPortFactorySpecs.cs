@@ -49,7 +49,7 @@
             var content = new byte[4];
             BinaryPrimitives.WriteUInt32BigEndian(content, 1);
 
-            Assert.Throws<ArgumentException>(() => this.cut.Create(new OptionData(0, Accept.NUMBER, (ushort)content.Length, content)));
+            Assert.Throws<ArgumentException>(() => this.cut.Create(new OptionData(0, 0, (ushort)content.Length, content)));
         }
     }
 
