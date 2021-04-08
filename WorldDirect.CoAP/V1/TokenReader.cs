@@ -12,7 +12,7 @@ namespace WorldDirect.CoAP.V1
     {
         public int Read(ReadOnlyMemory<byte> value, out CoapToken result)
         {
-            var tokenValue = BinaryPrimitives.ReadUInt64BigEndian(value.Span.Align(64));
+            var tokenValue = BinaryPrimitives.ReadUInt64BigEndian(value.Span.Align(8));
             result = new CoapToken(tokenValue, (CoapTokenLength)(UInt4)value.Length);
             return value.Length;
         }

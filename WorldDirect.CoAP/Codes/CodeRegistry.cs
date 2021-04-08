@@ -6,7 +6,6 @@ namespace WorldDirect.CoAP.Codes
     using System.Collections.Generic;
     using System.Linq;
     using WorldDirect.CoAP.Common;
-    using WorldDirect.CoAP.Codes.MethodCodes;
 
     /// <summary>
     /// Provides functionality to add and remove <see cref="CoapCode"/>s from the <see cref="CodeRegistry"/>.
@@ -35,18 +34,14 @@ namespace WorldDirect.CoAP.Codes
         /// <exception cref="ArgumentException">Throws if none <see cref="CoapCode"/> exists in the <see cref="CodeRegistry"/> with the given <paramref name="class"/> and <paramref name="detail"/>.</exception>
         public CoapCode Get(CodeClass @class, CodeDetail detail)
         {
-            if (!this.Exists(@class, detail))
+            var key = new CoapCodeKey(@class, detail);
+            var code = this.SingleOrDefault(c => c.Key.Equals(key));
+            if (code == null)
             {
-                return new UnknownCode(@class, detail);
+                throw new ArgumentException("Can not find code with key {key}", nameof(key));
             }
 
-            var code = this.Elements.Single(c => c.Class.Equals(@class) && c.Detail.Equals(detail));
             return code;
-        }
-
-        private bool Exists(CodeClass @class, CodeDetail detail)
-        {
-            return this.Elements.Any(c => c.Class.Equals(@class) && c.Detail.Equals(detail));
         }
     }
 }

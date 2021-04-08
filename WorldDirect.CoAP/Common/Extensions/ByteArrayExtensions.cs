@@ -3,7 +3,6 @@
 namespace WorldDirect.CoAP.Common.Extensions
 {
     using System;
-    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Text;
@@ -20,11 +19,12 @@ namespace WorldDirect.CoAP.Common.Extensions
         /// <returns>A <see cref="byte"/>[] that represents the specified hex string.</returns>
         public static byte[] FromHexString(string value)
         {
-            var subStrings = value.Split(' ');
-            var byteArray = subStrings
+            var bytes = value
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
                 .Select(s => byte.Parse(s, NumberStyles.HexNumber))
                 .ToArray();
-            return byteArray;
+
+            return bytes;
         }
 
         /// <summary>

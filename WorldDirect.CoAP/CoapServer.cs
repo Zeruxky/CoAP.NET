@@ -1,15 +1,8 @@
 ﻿namespace WorldDirect.CoAP
 {
-    using System;
-    using System.Linq;
     using System.Net;
     using System.Net.Sockets;
-    using System.Text;
     using System.Threading.Tasks;
-    using Codes;
-    using Microsoft.Extensions.Logging;
-    using V1.Messages;
-    using V1.Options;
 
     public class CoapServer
     {

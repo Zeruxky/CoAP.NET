@@ -42,7 +42,7 @@ namespace WorldDirect.CoAP.Specs
         public void TheDeserializerCanDeserializeAMessageWithPayload()
         {
             var bytes = ByteArrayExtensions.FromHexString("44 01 2e df 4f f1 91 11 b3 61 62 63 03 64 65 66 03 67 68 69 ff 0c 0b 0a");
-            var options = new List<CoapOption>()
+            var options = new OptionCollection()
             {
                 new UriPath("abc"),
                 new UriPath("def"),
@@ -63,7 +63,7 @@ namespace WorldDirect.CoAP.Specs
         public void DeserializeMessageWithoutPayload()
         {
             var bytes = ByteArrayExtensions.FromHexString("44 01 2e df 4f f1 91 11 b3 61 62 63 03 64 65 66 03 67 68 69");
-            var options = new List<CoapOption>()
+            var options = new OptionCollection()
             {
                 new UriPath("abc"),
                 new UriPath("def"),
@@ -179,16 +179,16 @@ namespace WorldDirect.CoAP.Specs
                 ContentFormats.ExiContentFormat,
                 ContentFormats.JsonContentFormat,
                 ContentFormats.LinkContentFormat,
-                ContentFormats.OctetContentFormat,
+                ContentFormats.OctetStreamContentFormat,
                 ContentFormats.TextPlainContentFormat,
                 ContentFormats.XmlContentFormat,
             };
             var contentFormatRegistry = new ContentFormatRegistry(contentFormats);
-            var contentFormatFactory = new ContentFormatFactory(contentFormatRegistry);
-            var factories = typeof(UriHostFactory)
+            var contentFormatFactory = new ContentFormat.Factory(contentFormatRegistry);
+            var factories = typeof(UriHost.Factory)
                 .Assembly
                 .GetTypes()
-                .Where(t => typeof(IOptionFactory).IsAssignableFrom(t) && !t.IsAbstract && t != typeof(ContentFormatFactory))
+                .Where(t => typeof(IOptionFactory).IsAssignableFrom(t) && !t.IsAbstract && t != typeof(ContentFormat.Factory))
                 .Select(Activator.CreateInstance)
                 .Cast<IOptionFactory>()
                 .Union(new IOptionFactory[]

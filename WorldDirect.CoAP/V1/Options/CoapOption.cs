@@ -1,11 +1,11 @@
 ﻿namespace WorldDirect.CoAP.V1.Options
 {
     using System;
+    using System.Buffers;
     using System.Linq;
-    using Common.Extensions;
 
     /// <summary>
-    /// Represents a option specified by RFC 7252.
+    /// Represents a non-generic option specified by RFC 7252.
     /// </summary>
     public abstract class CoapOption : IEquatable<CoapOption>
     {
@@ -14,15 +14,16 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="CoapOption"/> class.
         /// </summary>
-        /// <param name="value">The byte array (in network byte order) that represents the value of that option.</param>
-        /// <remarks>
-        /// If the system's computer architecture is in little endian order, the <paramref name="value"/>
-        /// will be reversed, because the <paramref name="value"/> is expected to be in network byte order (big endian order).
-        /// </remarks>
-        protected CoapOption(ushort number, byte[] value,  uint maxLength, uint minLength)
+        /// <param name="number">The number of that <see cref="CoapOption"/>.</param>
+        /// <param name="minLength">The minimum allowed length for that <see cref="CoapOption"/>.</param>
+        /// <param name="maxLength">The maximum allowed length for that <see cref="CoapOption"/>.</param>
+        /// <param name="isRepeatable">If set to <see langword="true"/> the <see cref="CoapOption"/> can be appear
+        /// multiple times in a <see cref="OptionCollection"/>; Otherwise <see langword="false"/>.</param>
+        /// <exception cref="ArgumentException">Throws if the <paramref name="minLength"/> is greater than the <paramref name="maxLength"/>.</exception>
+        protected CoapOption(ushort number, uint minLength, uint maxLength, bool isRepeatable)
         {
             this.Number = number;
-            this.Name = this.Dasherize();
+            this.Name = this.GetOptionName();
 
             if (minLength > maxLength)
             {
@@ -31,17 +32,23 @@
 
             this.MinLength = minLength;
             this.MaxLength = maxLength;
-
-            if (value.Length < minLength || value.Length > maxLength)
-            {
-                throw new ArgumentOutOfRangeException(nameof(this.Value), this.Value, $"The length of the value is out of range [{this.MinLength} - {this.MaxLength} bytes].");
-            }
-
-            this.Value = value;
+            this.IsRepeatable = isRepeatable;
+            this.IsCritical = Convert.ToBoolean(this.Number & 1);
+            this.IsElective = !this.IsCritical;
+            this.IsUnsafe = Convert.ToBoolean(this.Number & 2);
+            this.IsSafeToForward = !this.IsUnsafe;
+            this.IsNoCacheKey = (this.Number & 0x1e) == 0x1c;
         }
 
-        protected CoapOption(ushort number, byte[] value, uint maxLength)
-            : this(number, value, maxLength, MIN_LENGTH)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CoapOption"/> class.
+        /// </summary>
+        /// <param name="number">The number of that <see cref="CoapOption"/>.</param>
+        /// <param name="maxLength">The maximum allowed length for that <see cref="CoapOption"/>.</param>
+        /// <param name="isRepeatable">If set to <see langword="true"/> the <see cref="CoapOption"/> can be appear
+        /// multiple times in a <see cref="OptionCollection"/>; Otherwise <see langword="false"/>.</param>
+        protected CoapOption(ushort number, uint maxLength, bool isRepeatable)
+            : this(number, MIN_LENGTH, maxLength, isRepeatable)
         {
         }
 
@@ -53,19 +60,77 @@
         /// </value>
         public ushort Number { get; }
 
+        /// <summary>
+        /// Gets the name of that <see cref="CoapOption"/>.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         public string Name { get; }
 
         /// <summary>
-        /// Gets the raw value of that <see cref="CoapOption"/> in the system's computer architecture.
+        /// Gets the maximum allowed length in bytes for that <see cref="CoapOption"/>.
         /// </summary>
         /// <value>
-        /// The raw value.
+        /// The maximum allowed length in bytes.
         /// </value>
-        public byte[] Value { get; }
-
         public uint MaxLength { get; }
 
+        /// <summary>
+        /// Gets the minimum allowed length in bytes for that <see cref="CoapOption"/>.
+        /// </summary>
+        /// <value>
+        /// The minimum allowed length in bytes.
+        /// </value>
         public uint MinLength { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is elective.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is elective; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsElective { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is safe to forward.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is safe to forward; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsSafeToForward { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is critical.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is critical; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsCritical { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is unsafe.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is unsafe; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsUnsafe { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is no cache key.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is no cache key; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsNoCacheKey { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is repeatable.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is repeatable; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsRepeatable { get; }
 
         public static bool operator ==(CoapOption left, CoapOption right)
         {
@@ -77,8 +142,10 @@
             return !Equals(left, right);
         }
 
+        /// <inheritdoc />
         public override string ToString() => $"{this.Name} ({this.Number})";
 
+        /// <inheritdoc />
         public bool Equals(CoapOption other)
         {
             if (ReferenceEquals(null, other))
@@ -91,9 +158,10 @@
                 return true;
             }
 
-            return this.Number.Equals(other.Number) && this.Name.Equals(other.Name) && this.Value.SequenceEqual(other.Value);
+            return this.Number.Equals(other.Number) && this.Name.Equals(other.Name);
         }
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj))
@@ -111,12 +179,24 @@
                 return false;
             }
 
-            return this.Equals((CoapOption) obj);
+            return this.Equals((CoapOption)obj);
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
-            return HashCode.Combine(this.Number, this.Name, this.Value);
+            return HashCode.Combine(this.Number, this.Name);
+        }
+
+        private string GetOptionName()
+        {
+            // Special case for the ETag option, which will not be dasherized.
+            if (this.GetType() == typeof(ETag))
+            {
+                return "ETag";
+            }
+
+            return this.GetType().Name.Dasherize();
         }
     }
 }

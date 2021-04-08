@@ -4,11 +4,11 @@ namespace WorldDirect.CoAP.Codes.Common
 {
     using WorldDirect.CoAP.V1.Options;
 
-    public class UnknownFactory : IOptionFactory
+    public class UnrecognizedOptionFactory : IOptionFactory
     {
         public CoapOption Create(OptionData src)
         {
-            return new UnknownOption(src.Number, src.Value);
+            return new UnrecognizedOption(src.Number, src.Value);
         }
 
         public int Number => -1;

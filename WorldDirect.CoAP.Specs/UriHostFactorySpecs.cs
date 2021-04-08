@@ -8,11 +8,11 @@
 
     public class UriHostFactorySpecs
     {
-        private readonly UriHostFactory cut;
+        private readonly UriHost.Factory cut;
 
         public UriHostFactorySpecs()
         {
-            this.cut = new UriHostFactory();
+            this.cut = new UriHost.Factory();
         }
 
         [Fact]

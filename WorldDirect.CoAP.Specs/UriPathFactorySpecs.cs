@@ -2,18 +2,17 @@
 {
     using System;
     using System.Text;
-    using System.Threading;
     using FluentAssertions;
     using V1.Options;
     using Xunit;
 
     public class UriPathFactorySpecs
     {
-        private readonly UriPathFactory cut;
+        private readonly UriPath.Factory cut;
 
         public UriPathFactorySpecs()
         {
-            this.cut = new UriPathFactory();
+            this.cut = new UriPath.Factory();
         }
 
         [Fact]

@@ -2,9 +2,15 @@
 {
     using System;
     using Common.Extensions;
+    using Options;
 
+    /// <summary>
+    /// Provides functionality to read the payload of the message from the specified <see cref="ReadOnlyMemory{T}"/>.
+    /// </summary>
+    /// <seealso cref="WorldDirect.CoAP.IReader{System.ReadOnlyMemory{System.Byte}}" />
     public class PayloadReader : IReader<ReadOnlyMemory<byte>>
     {
+        private static readonly byte[] EmptyPayload = new byte[0];
         private const byte PAYLOAD_MARKER = 0xFF;
 
         /// <inheritdoc />
@@ -12,7 +18,7 @@
         {
             if (value.IsEmpty)
             {
-                result = new byte[0];
+                result = EmptyPayload;
                 return 0;
             }
 
@@ -21,7 +27,7 @@
                 throw new MessageFormatErrorException("Payload marker found but no payload.");
             }
 
-            result = BitConverter.IsLittleEndian ? value.Slice(1).Reverse() : value.Slice(1);
+            result = MemoryReader.ReadBytesBigEndian(value, 1);
             return value.Length;
         }
     }

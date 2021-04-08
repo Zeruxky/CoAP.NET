@@ -26,15 +26,5 @@
 
             return builder.ToString();
         }
-
-        public static string Dasherize(this CoapOption option)
-        {
-            if (option.GetType() == typeof(ETag))
-            {
-                return "ETag";
-            }
-
-            return option.GetType().Name.Dasherize();
-        }
     }
 }

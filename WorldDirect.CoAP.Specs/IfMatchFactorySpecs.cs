@@ -8,11 +8,11 @@
 
     public class IfMatchFactorySpecs
     {
-        private readonly IfMatchFactory cut;
+        private readonly IfMatch.Factory cut;
 
         public IfMatchFactorySpecs()
         {
-            this.cut = new IfMatchFactory();
+            this.cut = new IfMatch.Factory();
         }
 
         [Fact]

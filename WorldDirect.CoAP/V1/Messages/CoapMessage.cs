@@ -18,7 +18,7 @@ namespace WorldDirect.CoAP.V1.Messages
         {
             this.Header = header;
             this.Token = token;
-            this.Options = new List<CoapOption>(options.OrderBy(o => o.Number));
+            this.Option = new ReadOnlyOptionCollection(options);
             this.Payload = payload;
         }
 
@@ -26,7 +26,7 @@ namespace WorldDirect.CoAP.V1.Messages
 
         public CoapToken Token { get; }
 
-        public IReadOnlyList<CoapOption> Options { get; }
+        public ReadOnlyOptionCollection Option { get; }
 
         public ReadOnlyMemory<byte> Payload { get; }
 
@@ -42,7 +42,7 @@ namespace WorldDirect.CoAP.V1.Messages
                 return true;
             }
 
-            return this.Header.Equals(other.Header) && this.Token.Equals(other.Token) && this.Options.SequenceEqual(other.Options) && this.Payload.Span.SequenceEqual(other.Payload.Span);
+            return this.Header.Equals(other.Header) && this.Token.Equals(other.Token) && this.Option.SequenceEqual(other.Option) && this.Payload.Span.SequenceEqual(other.Payload.Span);
         }
 
         public override bool Equals(object obj)
@@ -67,7 +67,7 @@ namespace WorldDirect.CoAP.V1.Messages
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(this.Header, this.Token, this.Options, this.Payload);
+            return HashCode.Combine(this.Header, this.Token, this.Option, this.Payload);
         }
 
         public static bool operator ==(CoapMessage left, CoapMessage right)

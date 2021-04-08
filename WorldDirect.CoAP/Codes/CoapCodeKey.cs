@@ -1,33 +1,35 @@
-﻿// Copyright (c) World-Direct eBusiness solutions GmbH. All rights reserved.
-
-namespace WorldDirect.CoAP.Codes
+﻿namespace WorldDirect.CoAP.Codes
 {
     using System;
-    using System.Runtime.CompilerServices;
-    using WorldDirect.CoAP.Common;
 
-    public abstract class CoapCode : IEquatable<CoapCode>
+    public class CoapCodeKey : IEquatable<CoapCodeKey>
     {
-        protected CoapCode(CodeClass @class, CodeDetail detail)
+        public CoapCodeKey(CodeClass @class, CodeDetail detail)
         {
-            this.Key = new CoapCodeKey(@class, detail);
+            this.Class = @class;
+            this.Detail = detail;
         }
 
-        public CoapCodeKey Key { get; }
+        public CodeClass Class { get; }
 
-        public static bool operator ==(CoapCode left, CoapCode right)
+        public CodeDetail Detail { get; }
+
+        public static bool operator ==(CoapCodeKey left, CoapCodeKey right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(CoapCode left, CoapCode right)
+        public static bool operator !=(CoapCodeKey left, CoapCodeKey right)
         {
             return !Equals(left, right);
         }
 
-        public override string ToString() => this.Key.ToString();
+        public override string ToString()
+        {
+            return $"{this.Class}.{this.Detail}";
+        }
 
-        public bool Equals(CoapCode other)
+        public bool Equals(CoapCodeKey other)
         {
             if (ReferenceEquals(null, other))
             {
@@ -39,7 +41,7 @@ namespace WorldDirect.CoAP.Codes
                 return true;
             }
 
-            return Equals(this.Key, other.Key);
+            return Equals(this.Class, other.Class) && Equals(this.Detail, other.Detail);
         }
 
         public override bool Equals(object obj)
@@ -59,12 +61,12 @@ namespace WorldDirect.CoAP.Codes
                 return false;
             }
 
-            return this.Equals((CoapCode)obj);
+            return this.Equals((CoapCodeKey)obj);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(this.Key);
+            return HashCode.Combine(this.Class, this.Detail);
         }
     }
 }

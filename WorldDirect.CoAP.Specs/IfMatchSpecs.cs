@@ -15,7 +15,7 @@ namespace WorldDirect.CoAP.Specs
         public void IfMatchOnlyAcceptsEightBytes()
         {
             const string hexString = "be bf 87 3b 16 8c 00 06 05";
-            var bytes = ByteArrayExtensions.FromHexString(hexString);
+            var bytes = ByteArrayExtensions.FromHexString(hexString).ToArray();
             Assert.Throws<ArgumentOutOfRangeException>(() => new IfMatch(bytes));
         }
 
@@ -23,6 +23,15 @@ namespace WorldDirect.CoAP.Specs
         public void IfMatchNumberIsOne()
         {
             IfMatch.NUMBER.Should().Be(1);
+        }
+
+        [Fact]
+        public void IfMatchIsCritical()
+        {
+            const string hexString = "be bf 87 3b 16 8c 00 06";
+            var bytes = ByteArrayExtensions.FromHexString(hexString).ToArray();
+            var ifMatchOption = new IfMatch(bytes);
+            ifMatchOption.IsCritical.Should().BeTrue();
         }
     }
 }

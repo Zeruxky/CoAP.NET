@@ -3,10 +3,6 @@
 namespace WorldDirect.CoAP.V1.Messages
 {
     using System;
-    using System.Buffers;
-    using System.Buffers.Binary;
-    using System.Runtime.InteropServices;
-    using Common;
     using WorldDirect.CoAP.Codes;
 
     /// <summary>

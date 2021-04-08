@@ -90,7 +90,7 @@
             return services.Scan(scan =>
             {
                 scan.FromAssemblies(assemblies)
-                    .AddClasses(c => c.AssignableTo<IOptionFactory>().Where(t => t != typeof(UnknownFactory)))
+                    .AddClasses(c => c.AssignableTo<IOptionFactory>().Where(t => t != typeof(UnrecognizedOptionFactory)))
                     .AsImplementedInterfaces()
                     .WithTransientLifetime();
             });

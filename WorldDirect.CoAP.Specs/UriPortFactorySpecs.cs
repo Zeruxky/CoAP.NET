@@ -6,60 +6,13 @@
     using V1.Options;
     using Xunit;
 
-    public class AcceptSpecs
-    {
-        [Fact]
-        public void AcceptOnlyAcceptsTwoBytes()
-        {
-            Assert.Throws<ArgumentOutOfRangeException>(() => new Accept(ushort.MaxValue + 1));
-        }
-
-        [Fact]
-        public void AcceptNumberIs17()
-        {
-            Accept.NUMBER.Should().Be(17);
-        }
-    }
-
-    public class AcceptFactorySpecs
-    {
-        private readonly AcceptFactory cut;
-
-        public AcceptFactorySpecs()
-        {
-            this.cut = new AcceptFactory();
-        }
-
-        [Fact]
-        public void FactoryCanCreateAccept()
-        {
-            var content = new byte[4];
-            var expectedAccept = new Accept(1);
-            BinaryPrimitives.WriteUInt32BigEndian(content, 1);
-
-            var optionData = new OptionData(0, Accept.NUMBER, (ushort)content.Length, content);
-            var actualAccept = this.cut.Create(optionData);
-
-            actualAccept.Should().Be(expectedAccept);
-        }
-
-        [Fact]
-        public void FactoryOnlyAcceptsOptionDataWithAcceptNumber()
-        {
-            var content = new byte[4];
-            BinaryPrimitives.WriteUInt32BigEndian(content, 1);
-
-            Assert.Throws<ArgumentException>(() => this.cut.Create(new OptionData(0, 0, (ushort)content.Length, content)));
-        }
-    }
-
     public class UriPortFactorySpecs
     {
-        private readonly UriPortFactory cut;
+        private readonly UriPort.Factory cut;
 
         public UriPortFactorySpecs()
         {
-            this.cut = new UriPortFactory();
+            this.cut = new UriPort.Factory();
         }
 
         [Fact]

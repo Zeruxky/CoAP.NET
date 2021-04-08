@@ -3,28 +3,34 @@
 namespace WorldDirect.CoAP.V1
 {
     using System;
-    using System.Collections.Generic;
     using System.Net.Sockets;
     using Microsoft.Extensions.Logging;
     using WorldDirect.CoAP.Common;
     using WorldDirect.CoAP.V1.Messages;
-    using WorldDirect.CoAP.V1.Options;
 
     /// <summary>
     /// Provides functionality to serialize and deserialize a <see cref="CoapMessage"/> that is compliant to RFC 7252.
     /// </summary>
     public sealed class CoapMessageSerializer : IMessageSerializer
     {
-        private readonly IReader<IReadOnlyCollection<CoapOption>> optionReader;
+        private readonly IReader<ReadOnlyOptionCollection> optionReader;
         private readonly IReader<ReadOnlyMemory<byte>> payloadReader;
         private readonly ILogger<CoapMessageSerializer> logger;
         private readonly IReader<CoapHeader> headerReader;
         private readonly IReader<CoapToken> tokenReader;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CoapMessageSerializer"/> class.
+        /// </summary>
+        /// <param name="headerReader">The header reader.</param>
+        /// <param name="tokenReader">The token reader.</param>
+        /// <param name="optionsReader">The options reader.</param>
+        /// <param name="payloadReader">The payload reader.</param>
+        /// <param name="logger">The logger.</param>
         public CoapMessageSerializer(
             IReader<CoapHeader> headerReader,
             IReader<CoapToken> tokenReader,
-            IReader<IReadOnlyCollection<CoapOption>> optionsReader,
+            IReader<ReadOnlyOptionCollection> optionsReader,
             IReader<ReadOnlyMemory<byte>> payloadReader,
             ILogger<CoapMessageSerializer> logger)
         {
@@ -35,6 +41,13 @@ namespace WorldDirect.CoAP.V1
             this.logger = logger;
         }
 
+        /// <summary>
+        /// Deserializes the given <paramref name="value" /> to a <see cref="CoapMessage" />.
+        /// </summary>
+        /// <param name="value">The <see cref="ReadOnlySpan{T}" /> of <see cref="byte" />s for deserialization.</param>
+        /// <returns>
+        /// A <see cref="CoapMessage" /> that is equivalent to the given <paramref name="value" />.
+        /// </returns>
         public CoapMessage Deserialize(ReadOnlyMemory<byte> value)
         {
             var position = this.headerReader.Read(value.Slice(0, 4), out var header);
@@ -47,6 +60,13 @@ namespace WorldDirect.CoAP.V1
             return message;
         }
 
+        /// <summary>
+        /// Determines whether this instance can deserialize the specified result.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <returns>
+        ///   <c>true</c> if this instance can deserialize the specified result; otherwise, <c>false</c>.
+        /// </returns>
         public bool CanDeserialize(UdpReceiveResult result)
         {
             this.headerReader.Read(result.Buffer, out var header);

@@ -3,23 +3,12 @@
 namespace WorldDirect.CoAP.Codes.ResponseCodes.SuccessfulResponseCodes
 {
     using System.Collections.Generic;
+    using System.Linq;
     using CoAP.Common;
 
     public class SuccessfulResponseCodeRegistry : Registry<SuccessfulResponseCode>
     {
-        public SuccessfulResponseCodeRegistry()
-        {
-            this.Elements = new List<SuccessfulResponseCode>()
-            {
-                new Created(),
-                new Deleted(),
-                new Valid(),
-                new Changed(),
-                new Content(),
-            };
-        }
-
-        public SuccessfulResponseCodeRegistry(IEnumerable<SuccessfulResponseCode> codes)
+        protected SuccessfulResponseCodeRegistry(IEnumerable<SuccessfulResponseCode> codes)
             : base(codes)
         {
         }
