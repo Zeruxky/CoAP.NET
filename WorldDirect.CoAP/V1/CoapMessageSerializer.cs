@@ -3,7 +3,18 @@
 namespace WorldDirect.CoAP.V1
 {
     using System;
+    using System.Buffers;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.IO.Pipelines;
+    using System.Linq;
+    using System.Net;
     using System.Net.Sockets;
+    using System.Runtime.CompilerServices;
+    using System.Threading;
+    using System.Threading.Channels;
+    using System.Threading.Tasks;
+    using Codes;
     using Microsoft.Extensions.Logging;
     using WorldDirect.CoAP.Common;
     using WorldDirect.CoAP.V1.Messages;
@@ -71,6 +82,111 @@ namespace WorldDirect.CoAP.V1
         {
             this.headerReader.Read(result.Buffer, out var header);
             return header.Version.Equals(CoapVersion.V1);
+        }
+    }
+
+    public class MessageHandler : ICoapMessageHandler
+    {
+        private readonly RequestHandler requestHandler;
+        private readonly ResponseHandler responseHandler;
+
+        /// <inheritdoc />
+        public bool CanHandle(CoapMessageContext ctx)
+        {
+            return ctx.Message is CoapMessage;
+        }
+
+        /// <inheritdoc />
+        public async Task HandleAsync(CoapMessageContext ctx, CancellationToken ct)
+        {
+            var msg = (CoapMessage)ctx.Message;
+            var optionCollection = new OptionCollection(msg.Options);
+            if (msg.Header.Code is RequestCode)
+            {
+                this.requestHandler.HandleAsync(msg, ct)
+            }
+
+            if (msg.Header.Code is ResponseCode)
+            {
+                this.responseHandler.HandleAsync(msg, ct);
+            }
+
+            throw new ArgumentException();
+        }
+    }
+
+    public class RequestHandler
+    {
+
+    }
+
+    public interface IEndpoint
+    {
+        public int Port { get; }
+
+        public string Address { get; }
+    }
+
+    public class UdpEndpoint : IEndpoint
+    {
+        private readonly IPEndPoint endPoint;
+
+        public UdpEndpoint(IPEndPoint endpoint)
+        {
+            this.endPoint = endpoint;
+        }
+
+        public int Port => this.endPoint.Port;
+
+        public string Address => this.endPoint.Address.ToString();
+
+        public override string ToString() => this.endPoint.ToString();
+    }
+
+    public class CoapMessageContext
+    {
+        public CoapMessageContext(CoapConnection connection, ICoapMessage message)
+        {
+            Connection = connection;
+            Message = message;
+        }
+
+        public CoapConnection Connection { get; }
+
+        public ICoapMessage Message { get; }
+    }
+
+    public interface IChannel
+    {
+        IEndpoint LocalEndpoint { get; }
+
+        IEndpoint RemoteEndpoint { get; }
+
+        Task SendAsync(CoapMessage message, CancellationToken ct);
+
+        IAsyncEnumerable<CoapMessage> ReceiveAsync(CancellationToken ct);
+    }
+
+    public class UdpChannel : IChannel
+    {
+        public UdpChannel(IPEndPoint localEndpoint, IPEndPoint remoteEndPoint)
+        {
+            this.LocalEndpoint = new UdpEndpoint(localEndpoint);
+            this.RemoteEndpoint = new UdpEndpoint(remoteEndPoint);
+        }
+
+        public IEndpoint LocalEndpoint { get; }
+
+        public IEndpoint RemoteEndpoint { get; }
+
+        public async Task SendAsync(CoapMessage message, CancellationToken ct)
+        {
+
+        }
+
+        public async IAsyncEnumerable<CoapMessage> ReceiveAsync(CancellationToken ct)
+        {
+
         }
     }
 }

@@ -2,7 +2,9 @@
 {
     using System.Net;
     using System.Net.Sockets;
+    using System.Threading;
     using System.Threading.Tasks;
+    using V1;
 
     public class CoapServer
     {
@@ -53,4 +55,15 @@
 
     //    public CoapMessage Message { get; }
     //}
+
+    public interface ICoapMessage
+    {
+    }
+
+    public interface ICoapMessageHandler
+    {
+        bool CanHandle(CoapMessageContext message);
+
+        Task HandleAsync(CoapMessageContext message, CancellationToken ct);
+    }
 }
