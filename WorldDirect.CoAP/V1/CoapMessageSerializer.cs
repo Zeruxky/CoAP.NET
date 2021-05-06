@@ -78,42 +78,45 @@ namespace WorldDirect.CoAP.V1
         /// <returns>
         ///   <c>true</c> if this instance can deserialize the specified result; otherwise, <c>false</c>.
         /// </returns>
-        public bool CanDeserialize(UdpReceiveResult result)
+        public bool CanDeserialize(ReadOnlyMemory<byte> result)
         {
-            this.headerReader.Read(result.Buffer, out var header);
-            return header.Version.Equals(CoapVersion.V1);
+            this.headerReader.Read(result, out var header);
+            return this.CanDeserialize(header.Version);
+        }
+
+        public bool CanDeserialize(CoapVersion version)
+        {
+            return version.Equals(CoapVersion.V1);
         }
     }
 
-    public class MessageHandler : ICoapMessageHandler
-    {
-        private readonly RequestHandler requestHandler;
-        private readonly ResponseHandler responseHandler;
+    //public class MessageHandler : ICoapMessageHandler
+    //{
+    //    private readonly RequestHandler requestHandler;
+    //    private readonly ResponseHandler responseHandler;
 
-        /// <inheritdoc />
-        public bool CanHandle(CoapMessageContext ctx)
-        {
-            return ctx.Message is CoapMessage;
-        }
+    //    /// <inheritdoc />
+    //    public bool CanHandle(CoapMessageContext ctx)
+    //    {
+    //        return ctx.Message is CoapMessage;
+    //    }
 
-        /// <inheritdoc />
-        public async Task HandleAsync(CoapMessageContext ctx, CancellationToken ct)
-        {
-            var msg = (CoapMessage)ctx.Message;
-            var optionCollection = new OptionCollection(msg.Options);
-            if (msg.Header.Code is RequestCode)
-            {
-                this.requestHandler.HandleAsync(msg, ct)
-            }
+    //    /// <inheritdoc />
+    //    public async Task HandleAsync(RawCoapMessage msg, CancellationToken ct)
+    //    {
+    //        if (msg.Header.Code is RequestCode)
+    //        {
+    //            this.requestHandler.HandleAsync(msg, ct);
+    //        }
 
-            if (msg.Header.Code is ResponseCode)
-            {
-                this.responseHandler.HandleAsync(msg, ct);
-            }
+    //        if (msg.Header.Code is ResponseCode)
+    //        {
+    //            this.responseHandler.HandleAsync(msg, ct);
+    //        }
 
-            throw new ArgumentException();
-        }
-    }
+    //        throw new ArgumentException();
+    //    }
+    //}
 
     public class RequestHandler
     {
@@ -122,30 +125,12 @@ namespace WorldDirect.CoAP.V1
 
     public interface IEndpoint
     {
-        public int Port { get; }
 
-        public string Address { get; }
-    }
-
-    public class UdpEndpoint : IEndpoint
-    {
-        private readonly IPEndPoint endPoint;
-
-        public UdpEndpoint(IPEndPoint endpoint)
-        {
-            this.endPoint = endpoint;
-        }
-
-        public int Port => this.endPoint.Port;
-
-        public string Address => this.endPoint.Address.ToString();
-
-        public override string ToString() => this.endPoint.ToString();
     }
 
     public class CoapMessageContext
     {
-        public CoapMessageContext(CoapConnection connection, ICoapMessage message)
+        public CoapMessageContext(CoapConnection connection, CoapMessage message)
         {
             Connection = connection;
             Message = message;
@@ -153,40 +138,6 @@ namespace WorldDirect.CoAP.V1
 
         public CoapConnection Connection { get; }
 
-        public ICoapMessage Message { get; }
-    }
-
-    public interface IChannel
-    {
-        IEndpoint LocalEndpoint { get; }
-
-        IEndpoint RemoteEndpoint { get; }
-
-        Task SendAsync(CoapMessage message, CancellationToken ct);
-
-        IAsyncEnumerable<CoapMessage> ReceiveAsync(CancellationToken ct);
-    }
-
-    public class UdpChannel : IChannel
-    {
-        public UdpChannel(IPEndPoint localEndpoint, IPEndPoint remoteEndPoint)
-        {
-            this.LocalEndpoint = new UdpEndpoint(localEndpoint);
-            this.RemoteEndpoint = new UdpEndpoint(remoteEndPoint);
-        }
-
-        public IEndpoint LocalEndpoint { get; }
-
-        public IEndpoint RemoteEndpoint { get; }
-
-        public async Task SendAsync(CoapMessage message, CancellationToken ct)
-        {
-
-        }
-
-        public async IAsyncEnumerable<CoapMessage> ReceiveAsync(CancellationToken ct)
-        {
-
-        }
+        public CoapMessage Message { get; }
     }
 }

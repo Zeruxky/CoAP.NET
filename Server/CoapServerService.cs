@@ -10,31 +10,33 @@
     using Microsoft.Extensions.Options;
     using WorldDirect.CoAP;
 
-    public class CoapServerService : BackgroundService
+    public class CoapServerService : IHostedService
     {
+        private Task runningTask;
+        private CancellationTokenSource cancellationTokenSource;
         private readonly CoapServer server;
         private readonly ILogger<CoapServerService> logger;
-        private readonly IEnumerable<IMessageSerializer> serializers;
 
-        public CoapServerService(ILogger<CoapServerService> logger, IEnumerable<IMessageSerializer> serializers, IOptionsMonitor<CoapServerServiceOptions> options)
+        public CoapServerService(ILogger<CoapServerService> logger, ChannelHandlerBlock channelHandlerBlock, CoapMessageHandlerBlock messageHandlerBlock, RequestBlockHandler requestBlock, ResponseBlockHandler responseBlock)
         {
             this.logger = logger;
-            this.serializers = serializers;
-            this.server = new CoapServer(IPAddress.Parse(options.CurrentValue.LocalAddress), options.CurrentValue.Port);
+            this.cancellationTokenSource = new CancellationTokenSource();
+            this.server = new CoapServer(channelHandlerBlock, messageHandlerBlock, requestBlock, responseBlock);
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        public Task StartAsync(CancellationToken cancellationToken)
         {
-            this.logger.StartedServer(this.server.LocalEndPoint);
-            while (!stoppingToken.IsCancellationRequested)
+            using (var combinedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, this.cancellationTokenSource.Token))
             {
-                var result = await this.server.ReceiveAsync().ConfigureAwait(false);
-                this.logger.ReceivedMessage(result.RemoteEndPoint, result.Buffer.Length);
-                var serializer = this.serializers.Single(s => s.CanDeserialize(result));
-                var message = serializer.Deserialize(result.Buffer);
+                this.runningTask = this.server.RunAsync(combinedCts.Token);
             }
 
-            this.logger.StoppedServer();
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

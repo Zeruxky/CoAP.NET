@@ -10,7 +10,7 @@ namespace WorldDirect.CoAP.V1.Options
     /// <seealso cref="WorldDirect.CoAP.V1.Options.OpaqueOption" />
     public class IfMatch : OpaqueOption
     {
-        private const ushort NUMBER = 1;
+        public const ushort NUMBER = 1;
         private const ushort MAX_LENGTH = 8;
         private const ushort MIN_LENGTH = 0;
 

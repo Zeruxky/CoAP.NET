@@ -25,6 +25,8 @@ namespace WorldDirect.CoAP
         /// <returns>
         ///   <c>true</c> if this instance can deserialize the <see cref="CoapMessage"/> with that <see cref="CoapVersion"/>; otherwise, <c>false</c>.
         /// </returns>
-        bool CanDeserialize(UdpReceiveResult value);
+        bool CanDeserialize(ReadOnlyMemory<byte> value);
+
+        bool CanDeserialize(CoapVersion version);
     }
 }

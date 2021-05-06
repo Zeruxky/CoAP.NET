@@ -141,6 +141,24 @@
             return services;
         }
 
+        public static IServiceCollection AddChannels(this IServiceCollection services)
+        {
+            return services.AddChannels(typeof(UdpChannel).Assembly);
+        }
+
+        public static IServiceCollection AddChannels(this IServiceCollection services, params Assembly[] assemblies)
+        {
+            services.Scan(scan =>
+            {
+                scan.FromAssemblies(assemblies)
+                    .AddClasses(c => c.AssignableTo<IChannel>())
+                    .As<IChannel>()
+                    .WithSingletonLifetime();
+            });
+
+            return services;
+        }
+
         public static IServiceCollection UseRFC7252Specification(this IServiceCollection services)
         {
             services.AddTransient<IMessageSerializer, CoapMessageSerializer>(s =>

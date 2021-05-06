@@ -6,6 +6,7 @@
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using NLog.Extensions.Logging;
+    using WorldDirect.CoAP;
 
     /// <summary>
     /// Represents the application startup configuration.
@@ -55,7 +56,12 @@
                 .ConfigureServices((context, services) =>
                 {
                     services.Configure<CoapServerServiceOptions>(context.Configuration.GetSection(CoapServerServiceOptions.KEY));
+                    services.AddChannels();
                     services.AddHostedService<CoapServerService>();
+                    services.AddSingleton<CoapMessageHandlerBlock>();
+                    services.AddSingleton<ChannelHandlerBlock>();
+                    services.AddSingleton<RequestBlockHandler>();
+                    services.AddSingleton<ResponseBlockHandler>();
                     services.UseRFC7252Specification();
                 });
         }
