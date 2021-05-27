@@ -5,6 +5,7 @@ namespace WorldDirect.CoAP.V1.Messages
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Codes.MethodCodes;
     using WorldDirect.CoAP.V1.Options;
 
     public class CoapMessage : IEquatable<CoapMessage>
@@ -29,6 +30,25 @@ namespace WorldDirect.CoAP.V1.Messages
         public ReadOnlyOptionCollection Option { get; }
 
         public ReadOnlyMemory<byte> Payload { get; }
+
+        public bool IsEmptyMessage
+        {
+            get
+            {
+                if (!this.Header.Code.Equals(CoapCodes.Empty))
+                {
+                    return false;
+                }
+
+                if (!this.Payload.IsEmpty)
+                {
+                    // Empty message contains payload -> invalid.
+                    throw new MessageFormatErrorException();
+                }
+
+                return true;
+            }
+        }
 
         public bool Equals(CoapMessage other)
         {

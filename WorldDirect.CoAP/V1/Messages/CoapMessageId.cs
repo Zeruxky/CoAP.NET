@@ -12,9 +12,6 @@
         public static readonly CoapMessageId Default = new CoapMessageId(0);
 
         private static readonly Random Random = new Random();
-
-        // This mutex protects the access to the Random field.
-        private static readonly SemaphoreSlim Mutex = new SemaphoreSlim(1);
         private readonly ushort value;
 
         public CoapMessageId(ushort value)
@@ -39,27 +36,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="CoapMessageId"/> structure.
         /// </summary>
-        /// <param name="ct">The <see cref="CancellationToken"/> that observe that asynchronous initialization of a new <see cref="CoapMessageId"/>.</param>
-        /// <returns>A <see cref="Task{TResult}"/> that represents the asynchronous initialization of a new <see cref="CoapMessageId"/>.
-        /// The result of that <see cref="Task{TResult}"/> contains the new generated <see cref="CoapMessageId"/>.</returns>
-        /// <remarks>
-        /// This method is thread-safe and uses a <see cref="SemaphoreSlim"/> to protect the access to the <see cref="System.Random"/> instance
-        /// of the <see cref="CoapMessageId"/>.
-        /// </remarks>
-        public static async Task<CoapMessageId> NewMessageIdAsync(CancellationToken ct = default)
+        /// <returns>The new randomly generated <see cref="CoapMessageId"/>.</returns>
+        public static CoapMessageId NewMessageId()
         {
-            ushort value;
-
-            await Mutex.WaitAsync(ct).ConfigureAwait(false);
-            try
-            {
-                value = (ushort)Random.Next(ushort.MinValue, ushort.MaxValue + 1);
-            }
-            finally
-            {
-                Mutex.Release();
-            }
-
+            var value = (ushort)Random.Next(ushort.MinValue, ushort.MaxValue + 1);
             var messageId = new CoapMessageId(value);
             return messageId;
         }

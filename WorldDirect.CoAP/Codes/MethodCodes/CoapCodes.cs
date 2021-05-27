@@ -6,6 +6,8 @@
 
     public static class CoapCodes
     {
+        public static readonly CoapCode Empty = new EmptyCode();
+
         public static class Method
         {
             public static readonly CoapCode GET = new Get();

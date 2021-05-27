@@ -17,8 +17,6 @@ namespace WorldDirect.CoAP.V1.Messages
         /// </summary>
         public readonly CoapTokenLength Length;
 
-        // Protects the access to the Random field.
-        private static readonly SemaphoreSlim Mutex = new SemaphoreSlim(1);
         private static readonly Random Random = new Random();
         private readonly ulong value;
 
@@ -46,22 +44,11 @@ namespace WorldDirect.CoAP.V1.Messages
         /// Initializes a new instance of <see cref="CoapToken"/> structure.
         /// </summary>
         /// <param name="length">The <see cref="CoapTokenLength"/> that indicates the maximum value of the <see cref="CoapToken"/>.</param>
-        /// <param name="ct">The <see cref="CancellationToken"/> that observes the asynchronous initialization of a new <see cref="CoapToken"/>.</param>
         /// <returns>A <see cref="Task{TResult}"/> that represents the asynchronous initialization of a new <see cref="CoapToken"/>.
         /// The result of that <see cref="Task{TResult}"/> is the new created <see cref="CoapToken"/>.</returns>
-        public static async Task<CoapToken> NewTokenAsync(CoapTokenLength length, CancellationToken ct = default)
+        public static CoapToken NewToken(CoapTokenLength length)
         {
-            ulong value;
-            await Mutex.WaitAsync(ct).ConfigureAwait(false);
-            try
-            {
-                value = Random.NextULong((UInt4)length);
-            }
-            finally
-            {
-                Mutex.Release();
-            }
-
+            var value = Random.NextULong((UInt4)length);
             var token = new CoapToken(value, length);
             return token;
         }

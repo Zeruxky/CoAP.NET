@@ -14,7 +14,9 @@ namespace WorldDirect.CoAP.V1
     using System.Threading;
     using System.Threading.Channels;
     using System.Threading.Tasks;
+    using System.Threading.Tasks.Dataflow;
     using Codes;
+    using Codes.MethodCodes;
     using Microsoft.Extensions.Logging;
     using WorldDirect.CoAP.Common;
     using WorldDirect.CoAP.V1.Messages;
@@ -118,14 +120,149 @@ namespace WorldDirect.CoAP.V1
     //    }
     //}
 
-    public class RequestHandler
+    public class ResponseHandler : IResponseHandler, ITargetBlock<CoapMessage>, IReceivableSourceBlock<CoapMessageContext>
     {
+        public bool CanHandle(CoapVersion version)
+        {
+            throw new NotImplementedException();
+        }
 
+        public Task HandleAsync(CoapMessage message, CancellationToken ct)
+        {
+            throw new NotImplementedException();
+        }
+
+        public DataflowMessageStatus OfferMessage(DataflowMessageHeader messageHeader, CoapMessage messageValue, ISourceBlock<CoapMessage>? source, bool consumeToAccept)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Complete()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Fault(Exception exception)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Completion { get; }
+        public IDisposable LinkTo(ITargetBlock<CoapMessageContext> target, DataflowLinkOptions linkOptions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public CoapMessageContext? ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<CoapMessageContext> target, out bool messageConsumed)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<CoapMessageContext> target)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<CoapMessageContext> target)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryReceive(Predicate<CoapMessageContext>? filter, out CoapMessageContext item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryReceiveAll(out IList<CoapMessageContext>? items)
+        {
+            throw new NotImplementedException();
+        }
     }
 
-    public interface IEndpoint
+    public class RequestHandler : IRequestHandler, ITargetBlock<CoapMessage>, IReceivableSourceBlock<CoapMessageContext>
     {
+        private readonly TransformBlock<CoapMessage, CoapMessageContext> transformer;
 
+        public RequestHandler()
+        {
+            this.transformer = new TransformBlock<CoapMessage, CoapMessageContext>(this.Transformer);
+        }
+
+        public bool CanHandle(CoapVersion version)
+        {
+            return version.Equals(CoapVersion.V1);
+        }
+
+        public async Task HandleAsync(CoapMessage message, CancellationToken ct)
+        {
+            await this.transformer.SendAsync(message, ct).ConfigureAwait(false);
+        }
+
+        public DataflowMessageStatus OfferMessage(DataflowMessageHeader messageHeader, CoapMessage messageValue, ISourceBlock<CoapMessage>? source, bool consumeToAccept)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Complete()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Fault(Exception exception)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Completion { get; }
+
+        public IDisposable LinkTo(ITargetBlock<CoapMessageContext> target, DataflowLinkOptions linkOptions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public CoapMessageContext? ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<CoapMessageContext> target, out bool messageConsumed)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<CoapMessageContext> target)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<CoapMessageContext> target)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryReceive(Predicate<CoapMessageContext>? filter, out CoapMessageContext item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryReceiveAll(out IList<CoapMessageContext>? items)
+        {
+            throw new NotImplementedException();
+        }
+
+        private async Task<CoapMessageContext> Transformer(CoapMessage message)
+        {
+            if (message.IsEmptyMessage)
+            {
+
+            }
+
+            if (message.Header.Type.Equals(CoapType.Confirmable))
+            {
+                // Reliable Transmission
+
+            }
+
+            if (message.Header.Type.Equals(CoapType.NonConfirmable) && !message.Payload.IsEmpty)
+            {
+                // Transmission without Reliability
+            }
+        }
     }
 
     public class CoapMessageContext
