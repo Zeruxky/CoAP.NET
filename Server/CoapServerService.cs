@@ -17,11 +17,11 @@
         private readonly CoapServer server;
         private readonly ILogger<CoapServerService> logger;
 
-        public CoapServerService(ILogger<CoapServerService> logger, ChannelHandlerBlock channelHandlerBlock, CoapMessageHandlerBlock messageHandlerBlock, RequestBlockHandler requestBlock, ResponseBlockHandler responseBlock)
+        public CoapServerService(ILogger<CoapServerService> logger, CoapServer server)
         {
             this.logger = logger;
             this.cancellationTokenSource = new CancellationTokenSource();
-            this.server = new CoapServer(channelHandlerBlock, messageHandlerBlock, requestBlock, responseBlock);
+            this.server = server;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

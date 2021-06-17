@@ -48,7 +48,7 @@
         public ReadOnlyMemory<byte> Content { get; }
     }
 
-    public interface IChannel
+    public interface ITransport
     {
         IAsyncEnumerable<RawCoapMessage> ReceiveAsync(CancellationToken ct);
 
@@ -68,11 +68,86 @@
         public int Port { get; }
     }
 
+    public class RequestMessage
+    {
+
+    }
+
+    public interface IChannel
+    {
+        Task RunAsync(CancellationToken ct);
+
+        IAsyncEnumerable<RequestMessage> ReceiveRequestMessagesAsync(CancellationToken ct);
+    }
+
     public class UdpChannel : IChannel
+    {
+        private readonly UdpTransport transport;
+        private readonly CoapMessageSerializer serializer;
+        private readonly TransformManyBlock<RawCoapMessage, CoapMessage> serializerBlock;
+        private readonly TransformManyBlock<CoapMessage, RequestMessage> requestHandlerBlock;
+        private readonly TransformManyBlock<CoapMessage, ResponseMessage> responseHandlerBlock;
+
+        public UdpChannel(UdpTransport transport, CoAP.V1.CoapMessageSerializer serializer)
+        {
+            this.transport = transport;
+            this.serializer = serializer;
+            this.serializerBlock = new TransformManyBlock<RawCoapMessage, CoapMessage>(this.SerializeAsync);
+            this.requestHandlerBlock = new TransformManyBlock<CoapMessage, RequestMessage>(this.BuildRequestMessage);
+            this.responseHandlerBlock = new TransformManyBlock<CoapMessage, ResponseMessage>(this.BuildResponseMessage);
+            this.serializerBlock.LinkTo(this.requestHandlerBlock, m => m.Header.Code is RequestCode);
+            this.serializerBlock.LinkTo(this.responseHandlerBlock, m => m.Header.Code is ResponseCode);
+        }
+
+        public async Task RunAsync(CancellationToken ct)
+        {
+            await foreach (var rawMessage in this.transport.ReceiveAsync(ct).WithCancellation(ct).ConfigureAwait(false))
+            {
+                await this.serializerBlock.SendAsync(rawMessage, ct).ConfigureAwait(false);
+            }
+        }
+
+        public async IAsyncEnumerable<RequestMessage> ReceiveRequestMessagesAsync([EnumeratorCancellation] CancellationToken ct)
+        {
+            while (await this.requestHandlerBlock.OutputAvailableAsync(ct).ConfigureAwait(false))
+            {
+                var request = await this.requestHandlerBlock.ReceiveAsync(ct).ConfigureAwait(false);
+                yield return request;
+            }
+        }
+
+        private async Task<IEnumerable<CoapMessage>> SerializeAsync(RawCoapMessage rawMessage)
+        {
+            try
+            {
+                var message = this.serializer.Deserialize(rawMessage.Content);
+                return new[]
+                {
+                    message,
+                };
+            }
+            catch (Exception e)
+            {
+                return Enumerable.Empty<CoapMessage>();
+            }
+        }
+
+        private async Task<IEnumerable<RequestMessage>> BuildRequestMessage(CoapMessage message)
+        {
+            return Enumerable.Empty<RequestMessage>();
+        }
+
+        private async Task<IEnumerable<ResponseMessage>> BuildResponseMessage(CoapMessage message)
+        {
+            return Enumerable.Empty<ResponseMessage>();
+        }
+    }
+
+    public class UdpTransport : ITransport
     {
         private readonly UdpClient client;
 
-        public UdpChannel()
+        public UdpTransport()
         {
             var ipEndpoint = new IPEndPoint(IPAddress.Loopback, 5683);
             this.Endpoint = new UdpEndpoint(ipEndpoint);
@@ -121,70 +196,9 @@
         Task HandleAsync(CoapMessage message, CancellationToken ct);
     }
 
-    public class MessageHandler : IMessageHandler, IReceivableSourceBlock<CoapMessage>
+    public class ResponseMessage
     {
-        private readonly BufferBlock<CoapMessage> incomingMessages;
 
-        public MessageHandler(IEnumerable<IRequestHandler> requestHandlers, IEnumerable<IResponseHandler> responseHandlers)
-        {
-            this.incomingMessages = new BufferBlock<CoapMessage>();
-            var requestHandler = (RequestHandler)requestHandlers.Single(r => r.CanHandle(CoapVersion.V1));
-            var responseHandler = (ResponseHandler)responseHandlers.Single(r => r.CanHandle(CoapVersion.V1));
-            this.LinkTo(requestHandler, m => m.Header.Code is RequestCode);
-            this.LinkTo(responseHandler, m => m.Header.Code is ResponseCode);
-        }
-
-        public bool CanHandle(CoapMessage message)
-        {
-            return message.Header.Version.Equals(CoapVersion.V1);
-        }
-
-        public async Task HandleAsync(CoapMessage message, CancellationToken ct)
-        {
-            await this.incomingMessages.SendAsync(message, ct).ConfigureAwait(false);
-        }
-
-        public void Complete()
-        {
-            this.incomingMessages.Complete();
-        }
-
-        public void Fault(Exception exception)
-        {
-            ((IDataflowBlock)this.incomingMessages).Fault(exception);
-        }
-
-        public Task Completion => this.incomingMessages.Completion;
-
-        public IDisposable LinkTo(ITargetBlock<CoapMessage> target, DataflowLinkOptions linkOptions)
-        {
-            return this.incomingMessages.LinkTo(target, linkOptions);
-        }
-
-        public CoapMessage ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<CoapMessage> target, out bool messageConsumed)
-        {
-            return ((ISourceBlock<CoapMessage>)this.incomingMessages).ConsumeMessage(messageHeader, target, out messageConsumed);
-        }
-
-        public bool ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<CoapMessage> target)
-        {
-            return ((ISourceBlock<CoapMessage>)this.incomingMessages).ReserveMessage(messageHeader, target);
-        }
-
-        public void ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<CoapMessage> target)
-        {
-            ((ISourceBlock<CoapMessage>)this.incomingMessages).ReleaseReservation(messageHeader, target);
-        }
-
-        public bool TryReceive(Predicate<CoapMessage> filter, out CoapMessage item)
-        {
-            return this.incomingMessages.TryReceive(filter, out item);
-        }
-
-        public bool TryReceiveAll(out IList<CoapMessage> items)
-        {
-            return this.incomingMessages.TryReceiveAll(out items);
-        }
     }
 
     public class CoapServer
@@ -206,12 +220,12 @@
             await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
-        private async Task ReceiveMessageAsync(IChannel channel, CancellationToken ct)
+        private async Task ReceiveMessageAsync(IChannel transport, CancellationToken ct)
         {
-            await foreach (var rawMessage in channel.ReceiveAsync(ct).WithCancellation(ct).ConfigureAwait(false))
+            var task = transport.RunAsync(ct);
+            await foreach (var requestMessage in transport.ReceiveRequestMessagesAsync(ct).WithCancellation(ct).ConfigureAwait(false))
             {
-                var message = this.SerializeMessage(rawMessage);
-                await this.ProvideMessageToHandlerAsync(message, ct).ConfigureAwait(false);
+                var x = requestMessage;
             }
         }
 

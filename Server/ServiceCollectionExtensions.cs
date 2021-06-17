@@ -143,7 +143,7 @@
 
         public static IServiceCollection AddChannels(this IServiceCollection services)
         {
-            return services.AddChannels(typeof(UdpChannel).Assembly);
+            return services.AddChannels(typeof(UdpTransport).Assembly);
         }
 
         public static IServiceCollection AddChannels(this IServiceCollection services, params Assembly[] assemblies)
@@ -151,8 +151,8 @@
             services.Scan(scan =>
             {
                 scan.FromAssemblies(assemblies)
-                    .AddClasses(c => c.AssignableTo<IChannel>())
-                    .As<IChannel>()
+                    .AddClasses(c => c.AssignableTo<ITransport>())
+                    .As<ITransport>()
                     .WithSingletonLifetime();
             });
 
@@ -161,7 +161,7 @@
 
         public static IServiceCollection UseRFC7252Specification(this IServiceCollection services)
         {
-            services.AddTransient<IMessageSerializer, CoapMessageSerializer>(s =>
+            services.AddTransient(s =>
             {
                 var codeRegistry = s.GetRequiredService<CodeRegistry>();
                 var logger = s.GetRequiredService<ILogger<CoapMessageSerializer>>();
@@ -173,6 +173,9 @@
             services.AddOptionFactories();
             services.AddRegistries();
             services.AddContentFormats();
+            services.AddSingleton<CoapServer>();
+            services.AddTransient<IChannel, UdpChannel>();
+            services.AddTransient<UdpTransport>();
             return services;
         }
     }
