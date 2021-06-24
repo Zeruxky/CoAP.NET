@@ -12,6 +12,7 @@
     using System.Threading.Tasks;
     using System.Threading.Tasks.Dataflow;
     using Codes;
+    using Codes.MethodCodes;
     using V1;
     using V1.Messages;
 
@@ -68,9 +69,20 @@
         public int Port { get; }
     }
 
-    public class RequestMessage
+    public class ResourceId
     {
 
+    }
+
+    public class RequestMessage
+    {
+        public RequestCode Code { get; }
+
+        public MethodCode Method { get; }
+
+        public ResourceId Resource { get; }
+
+        public bool IsInitialMessage { get; }
     }
 
     public interface IChannel
@@ -134,7 +146,7 @@
 
         private async Task<IEnumerable<RequestMessage>> BuildRequestMessage(CoapMessage message)
         {
-            return Enumerable.Empty<RequestMessage>();
+
         }
 
         private async Task<IEnumerable<ResponseMessage>> BuildResponseMessage(CoapMessage message)
@@ -198,7 +210,9 @@
 
     public class ResponseMessage
     {
+        public RequestMessage Request { get; }
 
+        public ResponseCode Code { get; }
     }
 
     public class CoapServer
